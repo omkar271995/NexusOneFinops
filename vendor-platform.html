@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VendorFlow — Nexus Vendor Master</title>
+<title>NexusOne — Nexus Vendor Master</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -192,17 +192,83 @@
   .sort-asc::after { content: ' ↑'; color: var(--accent); }
   .sort-desc::after { content: ' ↓'; color: var(--accent); }
 
+  /* FORM INPUTS */
+  .form-group { margin-bottom: 12px; }
+  .form-label { display: block; font-size: 10.5px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+  .form-input, .form-select, .form-textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; color: var(--text-primary); font-size: 13px; font-family: 'DM Sans', sans-serif; transition: all var(--transition); }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
+  .form-input::placeholder { color: var(--text-muted); }
+  .form-textarea { resize: vertical; line-height: 1.6; }
+
+  /* TOGGLE */
+  .bq-toggle { width: 36px; height: 20px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; position: relative; cursor: pointer; transition: all var(--transition); flex-shrink: 0; }
+  .bq-toggle.on { background: var(--accent); border-color: var(--accent); }
+  .bq-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: white; transition: all var(--transition); }
+  .bq-toggle.on::after { left: 18px; }
+
   /* CHIP */
   .chip { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); }
 </style>
 </head>
 <body>
+<!-- LOGIN PAGE -->
+<div id="login-page" style="position:fixed;inset:0;background:var(--bg-deep);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:0">
+  <!-- Background subtle grid -->
+  <div style="position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);background-size:40px 40px;pointer-events:none"></div>
+
+  <div style="width:420px;position:relative;z-index:1">
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:36px">
+      <img src="data:image/png;base64,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" style="width:52px;height:52px;border-radius:14px;object-fit:cover;margin-bottom:14px;display:block;margin-left:auto;margin-right:auto">
+      <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.5px">Nexus<span style="color:var(--accent)">One</span></div>
+      <div style="font-size:12.5px;color:var(--text-muted);margin-top:5px">Nexus Malls (India)</div>
+    </div>
+
+    <!-- Card -->
+    <div style="background:var(--bg-sidebar);border:1px solid var(--border-active);border-radius:16px;padding:32px 36px">
+      <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:600;margin-bottom:6px">Sign in</div>
+      <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:26px">Enter your credentials to continue</div>
+
+      <div id="login-error" style="display:none;background:var(--red-dim);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius-sm);padding:10px 14px;font-size:12.5px;color:var(--red);margin-bottom:16px"></div>
+
+      <div style="margin-bottom:16px">
+        <label style="display:block;font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Username</label>
+        <input id="login-user" type="text" placeholder="Enter username" autocomplete="username"
+          style="width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;color:var(--text-primary);font-size:13.5px;font-family:'DM Sans',sans-serif;transition:all 0.16s;outline:none"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('login-pw').focus()">
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Password</label>
+        <div style="position:relative">
+          <input id="login-pw" type="password" placeholder="Enter password" autocomplete="current-password"
+            style="width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 40px 10px 13px;color:var(--text-primary);font-size:13.5px;font-family:'DM Sans',sans-serif;transition:all 0.16s;outline:none"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"
+            onkeydown="if(event.key==='Enter')doLogin()">
+          <span onclick="togglePw()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text-muted);font-size:14px;user-select:none" id="pw-eye">👁</span>
+        </div>
+      </div>
+
+      <button onclick="doLogin()" id="login-btn"
+        style="width:100%;background:var(--accent);color:#0D0F1A;border:none;border-radius:var(--radius-sm);padding:11px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.16s;letter-spacing:0.01em"
+        onmouseover="this.style.background='#F0B84E'" onmouseout="this.style.background='var(--accent)'">
+        Sign In
+      </button>
+
+      <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border);text-align:center;font-size:11.5px;color:var(--text-muted)">
+        NexusOne · Nexus Malls (India) · v2.0
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="app">
   <!-- SIDEBAR -->
   <nav id="sidebar">
     <div class="logo-area">
-      <div class="logo-mark">VF</div>
-      <div><div class="logo-text">Vendor<span>Flow</span></div><div class="logo-sub">Nexus Seawoods Mall</div></div>
+      <img src="data:image/png;base64,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" style="width:32px;height:32px;border-radius:8px;object-fit:cover;flex-shrink:0">
+      <div><div class="logo-text">Nexus<span>One</span></div><div class="logo-sub">Nexus Malls (India)</div></div>
     </div>
     <div class="nav-section">
       <div class="nav-label">Overview</div>
@@ -213,10 +279,10 @@
       </div>
     </div>
     <div class="nav-section">
-      <div class="nav-label">Vendors</div>
+      <div class="nav-label">Nexus Marketplace Brands</div>
       <div class="nav-item" onclick="nav('vendors')">
         <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/></svg>
-        Vendors
+        Brands
         <span style="margin-left:auto;font-size:10.5px;color:var(--text-muted)">39</span>
       </div>
       <div class="nav-item" onclick="nav('docs')">
@@ -234,6 +300,11 @@
       <div class="nav-item" onclick="nav('comms')">
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         Communications
+      </div>
+      <div class="nav-item" onclick="nav('workflows')">
+        <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+        Workflows
+        <span class="nav-badge amber" id="workflow-badge">2</span>
       </div>
       <div class="nav-item" onclick="nav('upload')">
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -253,7 +324,8 @@
     </div>
     <div class="sidebar-bottom">
       <div class="user-avatar">AR</div>
-      <div><div class="user-name">Aditya R.</div><div class="user-role">Admin</div></div>
+      <div style="flex:1"><div class="user-name">Admin</div><div class="user-role">admin · Nexus</div></div>
+      <svg onclick="doLogout()" title="Sign out" style="width:15px;height:15px;stroke:var(--text-muted);fill:none;stroke-width:1.8;stroke-linecap:round;cursor:pointer;flex-shrink:0" viewBox="0 0 24 24" onmouseover="this.style.stroke='var(--red)'" onmouseout="this.style.stroke='var(--text-muted)'"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </div>
   </nav>
 
@@ -278,9 +350,9 @@
       <div id="screen-dashboard" class="screen active">
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-label">Total Vendors</div>
+            <div class="stat-label">Total Brands</div>
             <div class="stat-value">39</div>
-            <div class="stat-sub">Nexus Seawoods Mall</div>
+            <div class="stat-sub">Nexus Malls (India)</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Live & Active</div>
@@ -417,6 +489,11 @@
             </button>
             <div class="col-toggle-menu" id="col-menu"></div>
           </div>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('brand-import-input').click()">
+            <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import CSV
+          </button>
+          <input type="file" id="brand-import-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="importBrands(this)">
           <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button>
         </div>
 
@@ -436,11 +513,73 @@
 
       <!-- ═══ PLACEHOLDER SCREENS ═══ -->
       <div id="screen-docs" class="screen">
-        <div class="section-card" style="text-align:center;padding:40px">
-          <div style="font-size:28px;margin-bottom:12px">📁</div>
-          <div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:600;margin-bottom:8px">Document Repository</div>
-          <div style="color:var(--text-muted);font-size:13px">Upload KYC, contracts, GST certificates, bank proofs and SLAs for each vendor.</div>
+
+        <!-- Stats bar -->
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap">
+          <div style="display:flex;gap:12px">
+            <div class="stat-card" style="padding:12px 18px;margin-bottom:0">
+              <div class="stat-label">Total Folders</div>
+              <div class="stat-value" id="docs-total-folders" style="font-size:22px">0</div>
+            </div>
+            <div class="stat-card" style="padding:12px 18px;margin-bottom:0">
+              <div class="stat-label">Total Documents</div>
+              <div class="stat-value" id="docs-total-files" style="font-size:22px;color:var(--blue)">0</div>
+            </div>
+          </div>
+          <div class="search-wrap" style="max-width:320px">
+            <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" id="docs-search" placeholder="Search by brand, CID, document name..." oninput="filterDocs()">
+          </div>
+          <select class="filter-select" id="docs-type-filter" onchange="filterDocs()">
+            <option value="">All Types</option>
+            <option value="agreement">Agreement</option>
+            <option value="addendum">Addendum</option>
+            <option value="kyc">KYC</option>
+            <option value="bank">Bank Proof</option>
+            <option value="gst">GST Certificate</option>
+            <option value="other">Other</option>
+          </select>
+          <span style="margin-left:auto;font-size:12px;color:var(--text-muted)" id="docs-count-label"></span>
         </div>
+
+        <!-- Breadcrumb -->
+        <div id="docs-breadcrumb" style="display:none;align-items:center;gap:6px;font-size:12.5px;color:var(--text-muted);margin-bottom:14px">
+          <span onclick="closeFolderView()" style="cursor:pointer;color:var(--accent)">All Folders</span>
+          <svg style="width:12px;height:12px;stroke:var(--text-muted);fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          <span id="docs-breadcrumb-name" style="color:var(--text-secondary)"></span>
+        </div>
+
+        <!-- Folder grid (default view) -->
+        <div id="docs-folder-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px"></div>
+
+        <!-- File list (inside folder) -->
+        <div id="docs-file-list" style="display:none">
+          <div class="table-wrap">
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead><tr>
+                  <th style="width:40px"></th>
+                  <th>Document Name</th>
+                  <th>Type</th>
+                  <th>File</th>
+                  <th>Size</th>
+                  <th>Uploaded By</th>
+                  <th>Uploaded At</th>
+                  <th>Actions</th>
+                </tr></thead>
+                <tbody id="docs-file-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="docs-empty" style="display:none;text-align:center;padding:60px 20px;color:var(--text-muted)">
+          <div style="font-size:40px;margin-bottom:14px">📂</div>
+          <div style="font-size:14px;font-weight:500;color:var(--text-secondary);margin-bottom:6px">No documents yet</div>
+          <div style="font-size:12.5px">Upload documents from the Brands tab using the 📎 button on any brand row.</div>
+        </div>
+
       </div>
       <div id="screen-reports" class="screen">
 
@@ -511,6 +650,36 @@
           <div style="color:var(--text-muted);font-size:13px">Email templates, delivery history, and communication logs per vendor.</div>
         </div>
       </div>
+      <div id="screen-workflows" class="screen">
+
+        <!-- HEADER STATS -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+          <div class="stat-card">
+            <div class="stat-label">Total Workflows</div>
+            <div class="stat-value">2</div>
+            <div class="stat-sub">configured</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active</div>
+            <div class="stat-value" style="color:var(--green)" id="wf-active-count">2</div>
+            <div class="stat-sub">running</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Emails Sent (Today)</div>
+            <div class="stat-value" style="color:var(--blue)" id="wf-sent-today">0</div>
+            <div class="stat-sub">triggered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pending Actions</div>
+            <div class="stat-value" style="color:var(--accent)" id="wf-pending-count">0</div>
+            <div class="stat-sub">vendors affected</div>
+          </div>
+        </div>
+
+        <div id="wf-cards-container"></div>
+
+      </div>
+
       <div id="screen-upload" class="screen">
 
         <!-- HEADER SUMMARY -->
@@ -535,6 +704,68 @@
           <div style="font-size:28px;margin-bottom:12px">⚙️</div>
           <div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:600;margin-bottom:8px">Settings</div>
           <div style="color:var(--text-muted);font-size:13px">Email config, roles, security settings.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DOCUMENT UPLOAD MODAL -->
+<div id="doc-upload-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)" onclick="if(event.target===this)closeDocUpload()">
+  <div style="background:var(--bg-sidebar);border:1px solid var(--border-active);border-radius:14px;width:540px;max-height:88vh;overflow-y:auto;position:relative">
+
+    <!-- Header -->
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;position:sticky;top:0;background:var(--bg-sidebar);z-index:1">
+      <div>
+        <div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:600" id="doc-modal-title">Brand Documents</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:3px" id="doc-modal-sub">Upload agreements and addendums</div>
+      </div>
+      <button onclick="closeDocUpload()" style="margin-left:auto;background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;line-height:1;padding:0">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:20px 24px">
+
+      <!-- Upload section -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:12px">Upload New Document</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px;font-weight:500">Document Type</div>
+            <select id="doc-type-select" class="form-select" style="font-size:12.5px">
+              <option value="agreement">📄 Agreement</option>
+              <option value="addendum">📋 Addendum</option>
+              <option value="kyc">🪪 KYC</option>
+              <option value="bank">🏦 Bank Proof / Cancelled Cheque</option>
+              <option value="gst">📑 GST Certificate</option>
+              <option value="other">📁 Other</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px;font-weight:500">Document Label (optional)</div>
+            <input id="doc-label-input" class="form-input" placeholder="e.g. FY2025-26 Agreement" style="font-size:12.5px">
+          </div>
+        </div>
+
+        <!-- Drop zone -->
+        <div id="doc-dropzone"
+          style="border:2px dashed var(--border-active);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all 0.16s"
+          onclick="document.getElementById('doc-file-input').click()"
+          ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-dim2)'"
+          ondragleave="this.style.borderColor='var(--border-active)';this.style.background=''"
+          ondrop="event.preventDefault();this.style.borderColor='var(--border-active)';this.style.background='';handleDocDrop(event.dataTransfer.files[0])">
+          <div style="font-size:26px;margin-bottom:8px">📂</div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:4px">Drop file here or click to browse</div>
+          <div style="font-size:11.5px;color:var(--text-muted)">PDF, DOCX, JPG, PNG, XLSX · Max 25MB</div>
+          <input type="file" id="doc-file-input" accept=".pdf,.docx,.doc,.jpg,.jpeg,.png,.xlsx,.xls" style="display:none" onchange="handleDocFileSelect(this)">
+        </div>
+      </div>
+
+      <!-- Existing documents list -->
+      <div>
+        <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:10px">Uploaded Documents</div>
+        <div id="doc-list-container">
+          <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:12.5px">No documents uploaded yet</div>
         </div>
       </div>
     </div>
@@ -566,72 +797,75 @@
 // VENDOR DATA — All 39 from Nexus_Vendor_Master.xlsx
 // ═══════════════════════════════════════
 const VENDORS = [
-  {cid:21,company:'Raymond Limited',brands:'Raymond, Color Plus, Park Avenue',store:'Nexus Seawoods Mall',pan:'AAJCR2207E',gst:'27AAJCR2207E1ZN',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'7400477655',poc_email:'ravi.ben@raymond.in'},
-  {cid:25,company:'Celio Retail Private Limited',brands:'Celio',store:'Nexus Seawoods Mall',pan:'AADCC3844J',gst:'27AADCC3844J1ZK',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_57500000514811',ifsc:'HDFC0000523',link_acc:'acc_QwVtW79TeVXR6d',poc_phone:'9930766373',poc_email:'sneha.shinde@celio.com'},
-  {cid:63,company:'Ikon Retail Private Limited',brands:'Latin Quarters',store:'Nexus Seawoods Mall',pan:'AABCI5529C',gst:'27AABCI5529C1ZT',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.15,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_03372320000688',ifsc:'HDFC0000337',link_acc:'acc_RTMgwDeN0DymqN',poc_phone:'9899215444',poc_email:'bharat@ikonretail.com,account_ebo@ikonretail.com'},
-  {cid:869,company:'Rosso Brunello Leathers Pvt Ltd',brands:'Rosso Brunello',store:'Nexus Seawoods Mall',pan:'AAECR9541C',gst:'27AAECR9541C1ZD',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.19,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_000705500293',ifsc:'ICIC0000007',link_acc:'acc_RkJewpp6uYDuMr',poc_phone:'9899977505',poc_email:'Ravinder@rossobrunello.com'},
-  {cid:1137,company:'Regal Brands Private Limited',brands:'Regal',store:'Nexus Seawoods Mall',pan:'AANCR1479C',gst:'27AANCR1479C1Z7',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.15,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_127263700000092',ifsc:'YESB0001272',link_acc:'acc_RTMh1uZ7xcCR8I',poc_phone:'8169144599',poc_email:'vijays@regalshoes.co.in'},
-  {cid:2280,company:'Estele Accessories Private Ltd',brands:'Estele',store:'Nexus Seawoods Mall',pan:'AAFCE6875M',gst:'27AAFCE6875M1ZX',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.20,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_9885199990',ifsc:'KKBK0000553',link_acc:'acc_QwVhVNMM7iKjAC',poc_phone:'9017756624',poc_email:'kushal.sharma@estele.co'},
-  {cid:2467,company:'Four Aces Fashion House Private Limited',brands:'Being Human',store:'Nexus Seawoods Mall',pan:'AADCF9667N',gst:'27AADCF9667N1ZS',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_9749691166',ifsc:'KKBK0001367',link_acc:'acc_RRNav2uAwyHelI',poc_phone:'9632723114',poc_email:'jimesh.vakharia@beinghumanclothing.com,vishal.jawale@beinghumanclothing.com'},
-  {cid:3932,company:'Credo Brands Marketing Limited',brands:'Mufti',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Inactive',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9324344133',poc_email:'manish@mufti.in'},
-  {cid:4835,company:'Reliance Retail Limited',brands:'TIRA',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:null,poc_email:null},
-  {cid:7352,company:'William Penn Private Limited',brands:'William Penn',store:'Nexus Seawoods Mall',pan:'AAACW7118G',gst:'27AAACW7118G1ZB',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.12,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_7611448641',ifsc:'KKBK0000424',link_acc:'acc_RRNtYieXFl4vQ4',poc_phone:'8828244444',poc_email:'ajay@williampenn.net'},
-  {cid:7392,company:'Woodland (Aero Club) Private Limited',brands:'WOODLAND',store:'Nexus Seawoods Mall',pan:'AADCW6753E',gst:'27AADCW6753E1Z5',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_21580500000215',ifsc:'BARB0INDELX',link_acc:'acc_RTMmY811HtffqQ',poc_phone:'7303059698',poc_email:'shishirmishra@woodlandworldwide.com'},
-  {cid:9342,company:'Burnt Umber Fashion Pvt Ltd',brands:'Amukti',store:'Nexus Seawoods Mall',pan:'AAECB7404N',gst:'27AAECB7404N1ZG',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_02392560002630',ifsc:'HDFC0000239',link_acc:'acc_QwVyXti6vdgbLD',poc_phone:'9967536997',poc_email:'kushbhatia@burntumberfashion.com'},
-  {cid:9365,company:'Meena Bazaar',brands:'Meena Bazaar',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.14,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8750242261',poc_email:'suryakant@meenabazaar.shop'},
-  {cid:9537,company:'Majestic Perfumes India Ltd',brands:'Majestic Perfume',store:'Nexus Seawoods Mall',pan:'ABFFM6216J',gst:'27ABFFM6216J1Z4',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.15,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_102105001814',ifsc:'ICIC0001021',link_acc:'acc_RTMhCc0SMidPhk',poc_phone:'9967864328',poc_email:'kbhikba@gmail.com'},
-  {cid:9741,company:'Modenik Lifestyle Private Limited',brands:'Enamor',store:'Nexus Seawoods Mall',pan:'AABCD9300J',gst:'27AABCD9300J1ZQ',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9886788140',poc_email:'ekantha.naik@modenik.in'},
-  {cid:9768,company:'Shasthas Clothing',brands:'Shastha',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.14,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8369659459',poc_email:'ayyappansk105@gmail.com'},
-  {cid:9830,company:'Sabhyata',brands:'Sabhyata',store:'Nexus Seawoods Mall',pan:'AAXFS3308J',gst:'27AAXFS3308J1ZN',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_01342000007270',ifsc:'HDFC0000134',link_acc:'acc_RTMhIUWgDbIbe8',poc_phone:'8130019818',poc_email:'adnanwasim@sabhyataclothing.com'},
-  {cid:9892,company:'The Perfume Store',brands:'The Perfume Store',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9867873639',poc_email:'sayed.suhail@gmail.com'},
-  {cid:10012,company:'Ochre And Black Private Limited',brands:'AND & Global Desi',store:'Nexus Seawoods Mall',pan:'AACCO8356L',gst:'27AACCO8356L1ZW',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.14,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_57500000377711',ifsc:'HDFC0000831',link_acc:'acc_RTMhPCPTfoeAUO',poc_phone:'8878412514',poc_email:'umesh.nikaju@houseofanitadongre.com'},
-  {cid:10013,company:'Colorbar Cosmetics Pvt Ltd',brands:'Colorbar',store:'Nexus Seawoods Mall',pan:'AAICS2414D',gst:'27AAICS2414D1ZO',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_164105000071',ifsc:'ICIC0000046',link_acc:'acc_RRNteqLq3oT9k8',poc_phone:'9818682379',poc_email:'rbhattacharya-cb@modienterprise.com'},
-  {cid:10060,company:'Chogori India Retail Ltd',brands:'Columbia Sports Wear',store:'Nexus Seawoods Mall',pan:'AADCC2405P',gst:'27AADCC2405P1ZL',status:'Live & Active',tot:'Signed',agreement:'Signed',model:'Blended Model',commission:0.18,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_50200113063984',ifsc:'HDFC0005578',link_acc:'acc_RRNtlhhjPgBKvX',poc_phone:'9650262420',poc_email:'ecom.mis@chogoriindia.com'},
-  {cid:10085,company:'Hidesign India Private Limited',brands:'HiDesign',store:'Nexus Seawoods Mall',pan:'AACCH0586R',gst:'27AACCH0586R1ZZ',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_04072320000801',ifsc:'HDFC0000407',link_acc:'acc_RTMhVUdoNDaWZW',poc_phone:'9820792945',poc_email:'hasan.q@hidesign.com'},
-  {cid:10101,company:'Pl Tour Fairy Pvt Ltd',brands:'IT Luggage',store:'Nexus Seawoods Mall',pan:'AAJCP9260B',gst:'27AAJCP9260B1ZC',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'7045455594',poc_email:'nagesh.temkar@frequenttraveller.in'},
-  {cid:10179,company:'Go Fashion India Limited',brands:'Go Colors',store:'Nexus Seawoods Mall',pan:'AADCG9557C',gst:'27AADCG9557C1ZH',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9566883407',poc_email:'raghul.pk@gocolors.com'},
-  {cid:10219,company:'Quest Retail Pvt Ltd',brands:'go fashion',store:'Nexus Seawoods Mall',pan:'AAACQ1315K',gst:'27AAACQ1315K1ZL',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.12,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_06222320000589',ifsc:'HDFC0000622',link_acc:'acc_RRNtrkx63Vgx36',poc_phone:'9980770916',poc_email:'sujith.kg@questretail.in'},
-  {cid:10319,company:'Just In Time Trading Pvt Ltd',brands:'Just In Time, Tissot',store:'Nexus Seawoods Mall',pan:'AACCJ3745N',gst:'27AACCJ3745N1Z6',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8652604335',poc_email:'kushal@justintime.in'},
-  {cid:10552,company:'Forever New Apparels Private Ltd',brands:'Forever New',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.16,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_50200114385456',ifsc:'HDFC0000044',link_acc:'acc_RTMhb9rzFwSt3C',poc_phone:'9873183898',poc_email:'Kunal.Behl@forevernew.in'},
-  {cid:10555,company:'ShoppersStop',brands:'ShoppersStop',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:null,poc_email:null},
-  {cid:10556,company:'Benetton India Pvt Ltd',brands:'UCB',store:'Nexus Seawoods Mall',pan:'AAACD1013F',gst:'27AAACD1013F2ZD',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.18,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_503044012905',ifsc:'KKBK0000172',link_acc:'acc_RTMhhJyjliyGc6',poc_phone:'9871880211',poc_email:'v.sharma@benetton.co.in'},
-  {cid:10557,company:'S D Retail Limited',brands:'Sweet Dreams',store:'Nexus Seawoods Mall',pan:'AAICS8200M',gst:'27AAICS8200M2Z0',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.23,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_00062320013509',ifsc:'HDFC0000006',link_acc:'acc_RZAvyN8A84bpJQ',poc_phone:'9764235388',poc_email:'swapnil@sweetdreamsindia.com'},
-  {cid:10574,company:'Aditya Birla Lifestyle Brands Limited',brands:'All Aditya Birla Lifestyle Brand',store:'Nexus Seawoods Mall',pan:'ABACA5076G',gst:'27ABACA5076G1ZQ',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.21,pg:'NA',logistics:'NA',packaging:'NA',sla:'NA',exceptions:null,bank_acc:'_57500001488734',ifsc:'HDFC0000060',link_acc:'acc_RRNu6XEUUbcCxQ',poc_phone:'9743122600',poc_email:'rajaram.bandagi@abfrl.adityabirla.com'},
-  {cid:10579,company:'Metro Brands Limited',brands:'Metro Brands',store:'Nexus Seawoods Mall',pan:'AAACM4754E',gst:'27AAACM4754E1ZL',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8356954039',poc_email:'durvesh.Phakatkar@metrobrands.com'},
-  {cid:10625,company:'Asg Kompanero Limited',brands:'Kompanero',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.15,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_10826655795',ifsc:'SBIN0004288',link_acc:'acc_RTMhnTiWYRxsFn',poc_phone:'8800097381',poc_email:'abhishek@kompanero.in'},
-  {cid:10676,company:'Mokobara Lifestyle Private Limited',brands:'Mokobara',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8333032910',poc_email:'khushibarnwal@mokobara.com'},
-  {cid:10721,company:'Safari Industries India Ltd',brands:'Safari',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9892877994',poc_email:'manoj.patel@safari.in'},
-  {cid:10857,company:'Aditya Birla Fashion and Retail Limited',brands:'Pantaloons',store:'Nexus Seawoods Mall',pan:'AAECP2371C',gst:'27AAECP2371C1ZP',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.18,pg:'NA',logistics:'NA',packaging:'NA',sla:'NA',exceptions:null,bank_acc:'_913020011832345',ifsc:'UTIB0000060',link_acc:'acc_Rc13KFlvH87ncg',poc_phone:'8114466762',poc_email:'vikas.bhomia@abfrl.adityabirla.com'},
-  {cid:10880,company:'Aditya Birla Fashion and Retail Limited',brands:'W, Aurelia, Eleven, Wishful',store:'Nexus Seawoods Mall',pan:'AAECP2371C',gst:'27AAECP2371C1ZP',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.21,pg:'NA',logistics:'NA',packaging:'NA',sla:'NA',exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9821254916',poc_email:'shiva.shami@abfrl.adityabirla.com'},
-  {cid:10896,company:'Ras Beauty Pvt Ltd',brands:'RAS Luxury Skincare',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'7400989697',poc_email:'retailoperations@rasluxuryoils.com'},
-  {cid:10928,company:'Inc5 Shoes Pvt Ltd',brands:'INC5',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9960734050',poc_email:'girish.w@inc5shoes.com'},
+  {cid:21,company:'Raymond Limited',brands:'Raymond, Color Plus, Park Avenue',store:'Nexus Malls (India)',pan:'AAJCR2207E',gst:'27AAJCR2207E1ZN',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'7400477655',poc_email:'ravi.ben@raymond.in',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:25,company:'Celio Retail Private Limited',brands:'Celio',store:'Nexus Malls (India)',pan:'AADCC3844J',gst:'27AADCC3844J1ZK',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_57500000514811',ifsc:'HDFC0000523',link_acc:'acc_QwVtW79TeVXR6d',poc_phone:'9930766373',poc_email:'sneha.shinde@celio.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:63,company:'Ikon Retail Private Limited',brands:'Latin Quarters',store:'Nexus Malls (India)',pan:'AABCI5529C',gst:'27AABCI5529C1ZT',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.15,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_03372320000688',ifsc:'HDFC0000337',link_acc:'acc_RTMgwDeN0DymqN',poc_phone:'9899215444',poc_email:'bharat@ikonretail.com,account_ebo@ikonretail.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:869,company:'Rosso Brunello Leathers Pvt Ltd',brands:'Rosso Brunello',store:'Nexus Malls (India)',pan:'AAECR9541C',gst:'27AAECR9541C1ZD',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.19,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_000705500293',ifsc:'ICIC0000007',link_acc:'acc_RkJewpp6uYDuMr',poc_phone:'9899977505',poc_email:'Ravinder@rossobrunello.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:1137,company:'Regal Brands Private Limited',brands:'Regal',store:'Nexus Malls (India)',pan:'AANCR1479C',gst:'27AANCR1479C1Z7',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.15,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_127263700000092',ifsc:'YESB0001272',link_acc:'acc_RTMh1uZ7xcCR8I',poc_phone:'8169144599',poc_email:'vijays@regalshoes.co.in',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:2280,company:'Estele Accessories Private Ltd',brands:'Estele',store:'Nexus Malls (India)',pan:'AAFCE6875M',gst:'27AAFCE6875M1ZX',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.20,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_9885199990',ifsc:'KKBK0000553',link_acc:'acc_QwVhVNMM7iKjAC',poc_phone:'9017756624',poc_email:'kushal.sharma@estele.co',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:2467,company:'Four Aces Fashion House Private Limited',brands:'Being Human',store:'Nexus Malls (India)',pan:'AADCF9667N',gst:'27AADCF9667N1ZS',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_9749691166',ifsc:'KKBK0001367',link_acc:'acc_RRNav2uAwyHelI',poc_phone:'9632723114',poc_email:'jimesh.vakharia@beinghumanclothing.com,vishal.jawale@beinghumanclothing.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:3932,company:'Credo Brands Marketing Limited',brands:'Mufti',store:'Nexus Malls (India)',pan:null,gst:null,status:'Inactive',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9324344133',poc_email:'manish@mufti.in',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:4835,company:'Reliance Retail Limited',brands:'TIRA',store:'Nexus Malls (India)',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:null,poc_email:null,agreement_start:null,agreement_end:null,docs:[]},
+  {cid:7352,company:'William Penn Private Limited',brands:'William Penn',store:'Nexus Malls (India)',pan:'AAACW7118G',gst:'27AAACW7118G1ZB',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.12,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_7611448641',ifsc:'KKBK0000424',link_acc:'acc_RRNtYieXFl4vQ4',poc_phone:'8828244444',poc_email:'ajay@williampenn.net',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:7392,company:'Woodland (Aero Club) Private Limited',brands:'WOODLAND',store:'Nexus Malls (India)',pan:'AADCW6753E',gst:'27AADCW6753E1Z5',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_21580500000215',ifsc:'BARB0INDELX',link_acc:'acc_RTMmY811HtffqQ',poc_phone:'7303059698',poc_email:'shishirmishra@woodlandworldwide.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:9342,company:'Burnt Umber Fashion Pvt Ltd',brands:'Amukti',store:'Nexus Malls (India)',pan:'AAECB7404N',gst:'27AAECB7404N1ZG',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_02392560002630',ifsc:'HDFC0000239',link_acc:'acc_QwVyXti6vdgbLD',poc_phone:'9967536997',poc_email:'kushbhatia@burntumberfashion.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:9365,company:'Meena Bazaar',brands:'Meena Bazaar',store:'Nexus Malls (India)',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.14,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8750242261',poc_email:'suryakant@meenabazaar.shop',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:9537,company:'Majestic Perfumes India Ltd',brands:'Majestic Perfume',store:'Nexus Malls (India)',pan:'ABFFM6216J',gst:'27ABFFM6216J1Z4',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.15,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_102105001814',ifsc:'ICIC0001021',link_acc:'acc_RTMhCc0SMidPhk',poc_phone:'9967864328',poc_email:'kbhikba@gmail.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:9741,company:'Modenik Lifestyle Private Limited',brands:'Enamor',store:'Nexus Malls (India)',pan:'AABCD9300J',gst:'27AABCD9300J1ZQ',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9886788140',poc_email:'ekantha.naik@modenik.in',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:9768,company:'Shasthas Clothing',brands:'Shastha',store:'Nexus Malls (India)',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.14,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8369659459',poc_email:'ayyappansk105@gmail.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:9830,company:'Sabhyata',brands:'Sabhyata',store:'Nexus Malls (India)',pan:'AAXFS3308J',gst:'27AAXFS3308J1ZN',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_01342000007270',ifsc:'HDFC0000134',link_acc:'acc_RTMhIUWgDbIbe8',poc_phone:'8130019818',poc_email:'adnanwasim@sabhyataclothing.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:9892,company:'The Perfume Store',brands:'The Perfume Store',store:'Nexus Malls (India)',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9867873639',poc_email:'sayed.suhail@gmail.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10012,company:'Ochre And Black Private Limited',brands:'AND & Global Desi',store:'Nexus Malls (India)',pan:'AACCO8356L',gst:'27AACCO8356L1ZW',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.14,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_57500000377711',ifsc:'HDFC0000831',link_acc:'acc_RTMhPCPTfoeAUO',poc_phone:'8878412514',poc_email:'umesh.nikaju@houseofanitadongre.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10013,company:'Colorbar Cosmetics Pvt Ltd',brands:'Colorbar',store:'Nexus Malls (India)',pan:'AAICS2414D',gst:'27AAICS2414D1ZO',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_164105000071',ifsc:'ICIC0000046',link_acc:'acc_RRNteqLq3oT9k8',poc_phone:'9818682379',poc_email:'rbhattacharya-cb@modienterprise.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10060,company:'Chogori India Retail Ltd',brands:'Columbia Sports Wear',store:'Nexus Malls (India)',pan:'AADCC2405P',gst:'27AADCC2405P1ZL',status:'Live & Active',tot:'Signed',agreement:'Signed',model:'Blended Model',commission:0.18,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_50200113063984',ifsc:'HDFC0005578',link_acc:'acc_RRNtlhhjPgBKvX',poc_phone:'9650262420',poc_email:'ecom.mis@chogoriindia.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10085,company:'Hidesign India Private Limited',brands:'HiDesign',store:'Nexus Malls (India)',pan:'AACCH0586R',gst:'27AACCH0586R1ZZ',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_04072320000801',ifsc:'HDFC0000407',link_acc:'acc_RTMhVUdoNDaWZW',poc_phone:'9820792945',poc_email:'hasan.q@hidesign.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10101,company:'Pl Tour Fairy Pvt Ltd',brands:'IT Luggage',store:'Nexus Malls (India)',pan:'AAJCP9260B',gst:'27AAJCP9260B1ZC',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'7045455594',poc_email:'nagesh.temkar@frequenttraveller.in',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10179,company:'Go Fashion India Limited',brands:'Go Colors',store:'Nexus Malls (India)',pan:'AADCG9557C',gst:'27AADCG9557C1ZH',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9566883407',poc_email:'raghul.pk@gocolors.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10219,company:'Quest Retail Pvt Ltd',brands:'go fashion',store:'Nexus Malls (India)',pan:'AAACQ1315K',gst:'27AAACQ1315K1ZL',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.12,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_06222320000589',ifsc:'HDFC0000622',link_acc:'acc_RRNtrkx63Vgx36',poc_phone:'9980770916',poc_email:'sujith.kg@questretail.in',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10319,company:'Just In Time Trading Pvt Ltd',brands:'Just In Time, Tissot',store:'Nexus Malls (India)',pan:'AACCJ3745N',gst:'27AACCJ3745N1Z6',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8652604335',poc_email:'kushal@justintime.in',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10552,company:'Forever New Apparels Private Ltd',brands:'Forever New',store:'Nexus Malls (India)',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.16,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_50200114385456',ifsc:'HDFC0000044',link_acc:'acc_RTMhb9rzFwSt3C',poc_phone:'9873183898',poc_email:'Kunal.Behl@forevernew.in',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10555,company:'ShoppersStop',brands:'ShoppersStop',store:'Nexus Malls (India)',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:null,poc_email:null,agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10556,company:'Benetton India Pvt Ltd',brands:'UCB',store:'Nexus Malls (India)',pan:'AAACD1013F',gst:'27AAACD1013F2ZD',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.18,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_503044012905',ifsc:'KKBK0000172',link_acc:'acc_RTMhhJyjliyGc6',poc_phone:'9871880211',poc_email:'v.sharma@benetton.co.in',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10557,company:'S D Retail Limited',brands:'Sweet Dreams',store:'Nexus Malls (India)',pan:'AAICS8200M',gst:'27AAICS8200M2Z0',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.23,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_00062320013509',ifsc:'HDFC0000006',link_acc:'acc_RZAvyN8A84bpJQ',poc_phone:'9764235388',poc_email:'swapnil@sweetdreamsindia.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10574,company:'Aditya Birla Lifestyle Brands Limited',brands:'All Aditya Birla Lifestyle Brand',store:'Nexus Malls (India)',pan:'ABACA5076G',gst:'27ABACA5076G1ZQ',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.21,pg:'NA',logistics:'NA',packaging:'NA',sla:'NA',exceptions:null,bank_acc:'_57500001488734',ifsc:'HDFC0000060',link_acc:'acc_RRNu6XEUUbcCxQ',poc_phone:'9743122600',poc_email:'rajaram.bandagi@abfrl.adityabirla.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10579,company:'Metro Brands Limited',brands:'Metro Brands',store:'Nexus Malls (India)',pan:'AAACM4754E',gst:'27AAACM4754E1ZL',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8356954039',poc_email:'durvesh.Phakatkar@metrobrands.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10625,company:'Asg Kompanero Limited',brands:'Kompanero',store:'Nexus Malls (India)',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.15,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_10826655795',ifsc:'SBIN0004288',link_acc:'acc_RTMhnTiWYRxsFn',poc_phone:'8800097381',poc_email:'abhishek@kompanero.in',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10676,company:'Mokobara Lifestyle Private Limited',brands:'Mokobara',store:'Nexus Malls (India)',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8333032910',poc_email:'khushibarnwal@mokobara.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10721,company:'Safari Industries India Ltd',brands:'Safari',store:'Nexus Malls (India)',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9892877994',poc_email:'manoj.patel@safari.in',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10857,company:'Aditya Birla Fashion and Retail Limited',brands:'Pantaloons',store:'Nexus Malls (India)',pan:'AAECP2371C',gst:'27AAECP2371C1ZP',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.18,pg:'NA',logistics:'NA',packaging:'NA',sla:'NA',exceptions:null,bank_acc:'_913020011832345',ifsc:'UTIB0000060',link_acc:'acc_Rc13KFlvH87ncg',poc_phone:'8114466762',poc_email:'vikas.bhomia@abfrl.adityabirla.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10880,company:'Aditya Birla Fashion and Retail Limited',brands:'W, Aurelia, Eleven, Wishful',store:'Nexus Malls (India)',pan:'AAECP2371C',gst:'27AAECP2371C1ZP',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.21,pg:'NA',logistics:'NA',packaging:'NA',sla:'NA',exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9821254916',poc_email:'shiva.shami@abfrl.adityabirla.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10896,company:'Ras Beauty Pvt Ltd',brands:'RAS Luxury Skincare',store:'Nexus Malls (India)',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'7400989697',poc_email:'retailoperations@rasluxuryoils.com',agreement_start:null,agreement_end:null,docs:[]},
+  {cid:10928,company:'Inc5 Shoes Pvt Ltd',brands:'INC5',store:'Nexus Malls (India)',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9960734050',poc_email:'girish.w@inc5shoes.com',agreement_start:null,agreement_end:null,docs:[]},
 ];
 
 // ═══════════════════════════════════════
 // COLUMN DEFINITIONS
 // ═══════════════════════════════════════
 const COLUMNS = [
-  { key:'cid', label:'CID', mono:true, visible:true, sortable:true },
-  { key:'company', label:'Company Name', visible:true, sortable:true, minw:180 },
-  { key:'brands', label:'Brand Names', visible:true, sortable:false, minw:160 },
-  { key:'store', label:'Store', visible:false, sortable:false },
-  { key:'pan', label:'PAN', mono:true, visible:true, sortable:false },
-  { key:'gst', label:'GST Number', mono:true, visible:true, sortable:false, minw:170 },
-  { key:'status', label:'Status', visible:true, sortable:true },
-  { key:'tot', label:'TOT Status', visible:true, sortable:false },
-  { key:'agreement', label:'Agreement', visible:true, sortable:true },
-  { key:'model', label:'Model', visible:true, sortable:true },
-  { key:'commission', label:'Commission', visible:true, sortable:true },
-  { key:'pg', label:'PG Charges', visible:true, sortable:false },
-  { key:'logistics', label:'Logistics', visible:false, sortable:false },
-  { key:'packaging', label:'Packaging', visible:false, sortable:false },
-  { key:'sla', label:'SLA Charges', visible:true, sortable:false },
-  { key:'exceptions', label:'Exceptions', visible:false, sortable:false },
-  { key:'bank_acc', label:'Bank A/C', mono:true, visible:false, sortable:false },
-  { key:'ifsc', label:'IFSC', mono:true, visible:true, sortable:false },
-  { key:'link_acc', label:'Link Account ID', mono:true, visible:false, sortable:false },
-  { key:'poc_phone', label:'POC Phone', visible:true, sortable:false },
-  { key:'poc_email', label:'POC Email', visible:true, sortable:false, minw:200 },
+  { key:'cid',              label:'CID',                mono:true,  visible:true,  sortable:true,  minw:70  },
+  { key:'company',          label:'Company Name',                   visible:true,  sortable:true,  minw:200 },
+  { key:'brands',           label:'Brand Names',                    visible:true,  sortable:false, minw:160 },
+  { key:'store',            label:'Store',                          visible:false, sortable:false          },
+  { key:'pan',              label:'PAN',                mono:true,  visible:true,  sortable:false, minw:130 },
+  { key:'gst',              label:'GST Number',         mono:true,  visible:true,  sortable:false, minw:180 },
+  { key:'status',           label:'Status',                         visible:true,  sortable:true,  minw:110 },
+  { key:'tot',              label:'TOT Status',                     visible:true,  sortable:false, minw:100 },
+  { key:'agreement',        label:'Agreement',                      visible:true,  sortable:true,  minw:110 },
+  { key:'agreement_start',  label:'Agr. Start Date',                visible:true,  sortable:true,  minw:130 },
+  { key:'agreement_end',    label:'Agr. End Date',                  visible:true,  sortable:true,  minw:130 },
+  { key:'model',            label:'Model',                          visible:true,  sortable:true,  minw:120 },
+  { key:'commission',       label:'Commission',                     visible:true,  sortable:true,  minw:110 },
+  { key:'pg',               label:'PG Charges',                     visible:true,  sortable:false, minw:100 },
+  { key:'logistics',        label:'Logistics',                      visible:true,  sortable:false, minw:140 },
+  { key:'packaging',        label:'Packaging',                      visible:true,  sortable:false, minw:140 },
+  { key:'sla',              label:'SLA Charges',                    visible:true,  sortable:false, minw:130 },
+  { key:'exceptions',       label:'Exceptions',                     visible:false, sortable:false, minw:130 },
+  { key:'bank_acc',         label:'Bank A/C',           mono:true,  visible:true,  sortable:false, minw:170 },
+  { key:'ifsc',             label:'IFSC',               mono:true,  visible:true,  sortable:false, minw:120 },
+  { key:'link_acc',         label:'Link Account ID',    mono:true,  visible:true,  sortable:false, minw:180 },
+  { key:'poc_phone',        label:'POC Phone',                      visible:true,  sortable:false, minw:120 },
+  { key:'poc_email',        label:'POC Email',                      visible:true,  sortable:false, minw:220 },
+  { key:'docs',             label:'Docs',                           visible:true,  sortable:false, minw:100 },
 ];
 
 // ═══════════════════════════════════════
@@ -760,6 +994,25 @@ function fmtCell(v, col) {
   }
   if (col.key === 'company') return `<div style="font-weight:500;max-width:220px;overflow:hidden;text-overflow:ellipsis">${val||'—'}</div>`;
   if (col.key === 'brands') return `<div style="color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis">${val||'—'}</div>`;
+  if (col.key === 'agreement_start' || col.key === 'agreement_end') {
+    if (!val) return `<span style="color:var(--text-muted);font-size:11.5px">Not set</span>`;
+    // Check expiry warning for end date
+    if (col.key === 'agreement_end') {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const end = new Date(val);
+      const diffDays = Math.ceil((end - today) / (1000*60*60*24));
+      if (diffDays < 0) return `<span style="color:var(--red);font-size:11.5px;font-weight:500">⚠ ${val} (Expired)</span>`;
+      if (diffDays <= 7) return `<span style="color:var(--accent);font-size:11.5px;font-weight:500">⏰ ${val} (${diffDays}d)</span>`;
+    }
+    return `<span style="font-family:'DM Mono',monospace;font-size:11.5px">${val}</span>`;
+  }
+  if (col.key === 'docs') {
+    const docsArr = v.docs || [];
+    const count = docsArr.length;
+    return `<button onclick="event.stopPropagation();openDocUpload(${v.cid})" style="background:${count>0?'var(--green-dim)':'var(--bg-elevated)'};border:1px solid ${count>0?'rgba(52,211,153,0.25)':'var(--border)'};color:${count>0?'var(--green)':'var(--text-muted)'};border-radius:var(--radius-sm);padding:3px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">
+      📎 ${count > 0 ? count + ' doc' + (count>1?'s':'') : 'Upload'}
+    </button>`;
+  }
   if (!val) return `<span style="color:var(--text-muted)">—</span>`;
   if (col.mono) return `<span class="mono">${val}</span>`;
   return val;
@@ -898,6 +1151,23 @@ function renderPanelTab(tab) {
           <div class="field"><div class="field-label">Commission Model</div>
             ${v.model ? `<span class="badge ${v.model==='Blended Model'?'badge-purple':'badge-blue'}">${v.model}</span>` : `<span class="field-val empty">—</span>`}
           </div>
+          <div class="field">
+            <div class="field-label">Agreement Start Date</div>
+            <input type="date" value="${v.agreement_start||''}" onchange="updateVendorField(${v.cid},'agreement_start',this.value)" style="background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 9px;color:var(--text-primary);font-size:12px;font-family:'DM Mono',monospace;width:100%;transition:all 0.16s;outline:none" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+          </div>
+          <div class="field">
+            <div class="field-label">Agreement End Date</div>
+            <input type="date" value="${v.agreement_end||''}" onchange="updateVendorField(${v.cid},'agreement_end',this.value)" style="background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 9px;color:var(--text-primary);font-size:12px;font-family:'DM Mono',monospace;width:100%;transition:all 0.16s;outline:none" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+            ${(()=>{
+              if (!v.agreement_end) return '';
+              const today = new Date(); today.setHours(0,0,0,0);
+              const end = new Date(v.agreement_end);
+              const d = Math.ceil((end-today)/(1000*60*60*24));
+              if (d < 0) return '<div style="font-size:11px;color:var(--red);margin-top:4px">⚠ Agreement expired</div>';
+              if (d <= 7) return '<div style="font-size:11px;color:var(--accent);margin-top:4px">⏰ Expires in '+d+' day'+(d!==1?'s':'')+'</div>';
+              return '';
+            })()}
+          </div>
         </div>
       </div>
       <div class="panel-section">
@@ -983,7 +1253,7 @@ function exportCSV() {
 // ═══════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════
-const pageNames = {dashboard:'Dashboard',vendors:'Vendors — Nexus Seawoods Mall',docs:'Documents',reports:'Reports & Scheduling',comms:'Communications',upload:'Upload Report Data',audit:'Audit Logs',settings:'Settings'};
+const pageNames = {dashboard:'Dashboard',vendors:'Nexus Marketplace Brands',docs:'Documents',reports:'Reports & Scheduling',comms:'Communications',workflows:'Workflows & Automation',upload:'Upload Report Data',audit:'Audit Logs',settings:'Settings'};
 
 function nav(screen) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -994,6 +1264,8 @@ function nav(screen) {
     if ((n.getAttribute('onclick')||'').includes("'"+screen+"'")) n.classList.add('active');
   });
   if (screen === 'upload') initUploadScreen();
+  if (screen === 'workflows') initWorkflows();
+  if (screen === 'docs') initDocsScreen();
 }
 
 // ═══════════════════════════════════════
@@ -2029,6 +2301,949 @@ function showUploadToast(msg, type) {
   setTimeout(() => toast.remove(), 3500);
 }
 
+
+
+// ═══════════════════════════════════════
+// AUTH MODULE
+// ═══════════════════════════════════════
+const CREDENTIALS = { username: 'admin', password: 'admin@123' };
+
+function doLogin() {
+  const user = document.getElementById('login-user').value.trim();
+  const pw   = document.getElementById('login-pw').value;
+  const errEl = document.getElementById('login-error');
+  const btn   = document.getElementById('login-btn');
+
+  if (!user || !pw) {
+    errEl.textContent = 'Please enter both username and password.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.textContent = 'Signing in…';
+  btn.style.opacity = '0.7';
+  btn.style.pointerEvents = 'none';
+
+  setTimeout(() => {
+    if (user === CREDENTIALS.username && pw === CREDENTIALS.password) {
+      document.getElementById('login-page').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      errEl.style.display = 'none';
+      // Init workflows after login
+      initWorkflows();
+    } else {
+      errEl.textContent = 'Invalid username or password. Please try again.';
+      errEl.style.display = 'block';
+      document.getElementById('login-pw').value = '';
+    }
+    btn.textContent = 'Sign In';
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  }, 600);
+}
+
+function togglePw() {
+  const inp = document.getElementById('login-pw');
+  const eye = document.getElementById('pw-eye');
+  if (inp.type === 'password') { inp.type = 'text'; eye.textContent = '🙈'; }
+  else { inp.type = 'password'; eye.textContent = '👁'; }
+}
+
+function doLogout() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pw').value = '';
+  document.getElementById('login-error').style.display = 'none';
+}
+
+// Hide app on load — show only after login
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('app').style.display = 'none';
+});
+
+// ═══════════════════════════════════════
+// WORKFLOWS MODULE
+// ═══════════════════════════════════════
+
+const WORKFLOW_DEFS = [
+  {
+    id: 'wf01',
+    icon: '📄',
+    color: 'var(--accent-dim)',
+    iconColor: 'var(--accent)',
+    name: 'Agreement Pending Reminder',
+    description: 'Sends an email to the Brand POC every Monday when their Agreement Status is Pending.',
+    trigger: 'Every Monday · 9:00 AM IST',
+    triggerType: 'scheduled',
+    condition: { field: 'agreement', operator: 'equals', value: 'Pending' },
+    conditionLabel: 'Agreement = Pending',
+    action: 'send_email',
+    enabled: true,
+    emailSubject: 'Action Required: Agreement Pending — {{company_name}}',
+    emailBody: `Dear {{contact_name}},
+
+We hope this message finds you well.
+
+This is a reminder that your agreement with **Nexus Malls (India)** is currently pending your review and signature.
+
+**Brand:** {{brand_names}}
+**Company:** {{company_name}}
+**CID:** {{cid}}
+**Store:** Nexus Malls (India)
+
+Kindly complete the agreement at your earliest convenience to avoid any disruption to your operations.
+
+Please contact your Nexus relationship manager if you have any questions or need the agreement document resent.
+
+Best regards,
+Nexus Malls (India) Operations Team`,
+    lastRun: null,
+    runHistory: []
+  },
+  {
+    id: 'wf02',
+    icon: '🏦',
+    color: 'var(--blue-dim)',
+    iconColor: 'var(--blue)',
+    name: 'Bank Details Missing — Settlement Hold',
+    description: 'Sends an email to the Brand POC when their Bank Account details are missing, requesting a cancelled cheque.',
+    trigger: 'On Change · Daily Check · 10:00 AM IST',
+    triggerType: 'daily',
+    condition: { field: 'bank_acc', operator: 'empty', value: null },
+    conditionLabel: 'Bank Account = Empty / Missing',
+    action: 'send_email',
+    enabled: true,
+    emailSubject: 'Action Required: Bank Details Missing — Settlement on Hold for {{company_name}}',
+    emailBody: `Dear {{contact_name}},
+
+We hope you are doing well.
+
+Our records indicate that your **bank account details** have not been submitted yet, and as a result, **your settlement payments are currently on hold**.
+
+**Brand:** {{brand_names}}
+**Company:** {{company_name}}
+**CID:** {{cid}}
+
+To proceed with your settlements without further delay, please share the following at the earliest:
+
+1. Cancelled cheque (clearly showing Account Number, IFSC Code and Account Name)
+2. Bank account number
+3. IFSC code
+4. Account holder name
+
+Please reply to this email with the above documents or contact your Nexus relationship manager directly.
+
+We look forward to resolving this promptly.
+
+Best regards,
+Nexus Malls (India) Finance & Settlement Team`,
+    lastRun: null,
+    runHistory: []
+  },
+  {
+    id: 'wf03',
+    icon: '⏰',
+    color: 'var(--red-dim)',
+    iconColor: 'var(--red)',
+    name: 'Agreement Expiry Alert — 3 Days Before',
+    description: 'Sends an alert to accounts@gofynd.com, legal@gofynd.com and the Brand POC 3 days before the agreement expiry date.',
+    trigger: 'Daily · 8:00 AM IST',
+    triggerType: 'daily',
+    condition: { field: 'agreement_end', operator: 'expiring_in', value: 3 },
+    conditionLabel: 'Agreement End Date ≤ Today + 3 days',
+    action: 'send_email',
+    enabled: true,
+    emailSubject: 'URGENT: Agreement Expiring in 3 Days — {{company_name}}',
+    emailBody: `Dear Team,
+
+This is an automated alert to inform you that the agreement for the following brand is expiring in **3 days**.
+
+**Brand:** {{brand_names}}
+**Company:** {{company_name}}
+**CID:** {{cid}}
+**Agreement End Date:** {{agreement_end}}
+**Store:** Nexus Malls (India)
+
+Please take immediate action to renew or extend the agreement to avoid any operational disruption.
+
+Action Required:
+1. Review the current agreement terms
+2. Initiate renewal process with the brand
+3. Notify the brand POC if extension is needed
+
+This email has been sent to:
+• accounts@gofynd.com
+• legal@gofynd.com
+• {{poc_email}} (Brand POC)
+
+Best regards,
+NexusOne Automated Alerts
+Nexus Malls (India)`,
+    lastRun: null,
+    runHistory: []
+  }
+];
+
+// Workflow email log
+const wfEmailLog = [];
+
+function initWorkflows() {
+  renderWorkflowStats();
+  renderWorkflowCards();
+}
+
+function renderWorkflowStats() {
+  const affected1 = VENDORS.filter(v => v.agreement === 'Pending' && v.poc_email).length;
+  const affected2 = VENDORS.filter(v => (!v.bank_acc || v.bank_acc === '') && v.poc_email).length;
+  const el = document.getElementById('wf-pending-count');
+  if (el) el.textContent = affected1 + affected2;
+  const sentEl = document.getElementById('wf-sent-today');
+  if (sentEl) sentEl.textContent = wfEmailLog.filter(l => l.date === new Date().toDateString()).length;
+}
+
+function renderWorkflowCards() {
+  const container = document.getElementById('wf-cards-container');
+  if (!container) return;
+
+  container.innerHTML = WORKFLOW_DEFS.map(wf => {
+    const affected = getAffectedVendors(wf);
+    const lastRunText = wf.lastRun
+      ? 'Last run: ' + wf.lastRun
+      : 'Never run';
+
+    return `
+    <div class="section-card" style="padding:0;margin-bottom:14px;overflow:hidden" id="wfcard-${wf.id}">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:center;gap:14px;padding:18px 22px">
+        <div style="width:44px;height:44px;border-radius:var(--radius-sm);background:${wf.color};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${wf.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;font-family:'Sora',sans-serif">${wf.name}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:3px">${wf.description}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
+          <span class="badge ${affected.length > 0 ? 'badge-amber' : 'badge-green'}">
+            <span class="dot"></span> ${affected.length} brand${affected.length !== 1 ? 's' : ''} affected
+          </span>
+          <span style="font-size:11px;color:var(--text-muted)">${lastRunText}</span>
+          <div class="bq-toggle ${wf.enabled ? 'on' : ''}" id="wf-toggle-${wf.id}" onclick="toggleWorkflow('${wf.id}')"></div>
+        </div>
+      </div>
+
+      <!-- Config body -->
+      <div style="border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:0">
+
+        <!-- LEFT: Trigger + Condition + Actions -->
+        <div style="padding:18px 22px;border-right:1px solid var(--border)">
+
+          <!-- Trigger -->
+          <div style="margin-bottom:16px">
+            <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:8px">Trigger</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:13px">⏰</span>
+              <input class="form-input" value="${wf.trigger}" style="font-size:12.5px" id="wf-trigger-${wf.id}">
+            </div>
+          </div>
+
+          <!-- Condition -->
+          <div style="margin-bottom:16px">
+            <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:8px">Condition</div>
+            <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;font-size:12.5px;display:flex;align-items:center;gap:8px">
+              <span style="font-family:'DM Mono',monospace;font-size:11.5px;color:${wf.iconColor}">${wf.conditionLabel}</span>
+              <span style="color:var(--text-muted)">→ Send email to POC</span>
+            </div>
+          </div>
+
+          <!-- Email subject -->
+          <div style="margin-bottom:16px">
+            <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:8px">Email Subject</div>
+            <input class="form-input" value="${wf.emailSubject}" style="font-size:12px" id="wf-subject-${wf.id}">
+          </div>
+
+          <!-- Email body -->
+          <div style="margin-bottom:16px">
+            <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:8px">Email Body</div>
+            <textarea class="form-textarea" style="font-size:12px;min-height:140px;line-height:1.7" id="wf-body-${wf.id}">${wf.emailBody}</textarea>
+          </div>
+
+          <!-- Placeholders -->
+          <div>
+            <div style="font-size:10.5px;color:var(--text-muted);margin-bottom:6px;font-weight:500">Available Placeholders</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px">
+              ${['{{company_name}}','{{contact_name}}','{{brand_names}}','{{cid}}','{{poc_email}}','{{store}}'].map(p =>
+                `<span style="background:var(--accent-dim);color:var(--accent);border:1px solid rgba(245,166,35,0.2);border-radius:4px;padding:2px 8px;font-size:10.5px;font-family:'DM Mono',monospace;cursor:pointer" onclick="insertPlaceholder('${wf.id}','${p}')">${p}</span>`
+              ).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Affected vendors + actions -->
+        <div style="padding:18px 22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Affected Brands (${affected.length})</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="saveWorkflow('${wf.id}')">Save</button>
+              <button class="btn btn-primary btn-sm" style="font-size:11.5px" onclick="runWorkflow('${wf.id}')" ${!wf.enabled ? 'disabled style="opacity:0.4;font-size:11.5px"' : ''}>
+                ▶ Run Now
+              </button>
+            </div>
+          </div>
+
+          <!-- Affected vendors table -->
+          <div style="background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);max-height:220px;overflow-y:auto;margin-bottom:14px">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead>
+                <tr style="background:var(--bg-elevated)">
+                  <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);border-bottom:1px solid var(--border)">Brand</th>
+                  <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);border-bottom:1px solid var(--border)">POC Email</th>
+                  <th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);border-bottom:1px solid var(--border)">Status</th>
+                </tr>
+              </thead>
+              <tbody id="wf-affected-${wf.id}">
+                ${affected.length === 0
+                  ? `<tr><td colspan="3" style="padding:20px;text-align:center;color:var(--text-muted)">No brands match this condition</td></tr>`
+                  : affected.map(v => `
+                    <tr style="transition:background 0.15s" onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background=''">
+                      <td style="padding:7px 10px;border-bottom:1px solid var(--border)">
+                        <div style="font-weight:500">${v.brands || v.company}</div>
+                        <div style="font-size:10px;color:var(--text-muted)">CID ${v.cid}</div>
+                      </td>
+                      <td style="padding:7px 10px;border-bottom:1px solid var(--border);color:var(--blue);font-size:11.5px">
+                        ${v.poc_email ? v.poc_email.split(',')[0] : '<span style="color:var(--red)">No email</span>'}
+                      </td>
+                      <td style="padding:7px 10px;border-bottom:1px solid var(--border)" id="wf-vstatus-${wf.id}-${v.cid}">
+                        <span class="badge badge-amber" style="font-size:10px"><span class="dot"></span> Pending</span>
+                      </td>
+                    </tr>`).join('')
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Run log -->
+          <div>
+            <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:8px">Run History</div>
+            <div id="wf-history-${wf.id}" style="font-size:12px;color:var(--text-muted)">
+              No runs yet.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function getAffectedVendors(wf) {
+  if (wf.id === 'wf01') {
+    return VENDORS.filter(v => v.agreement === 'Pending' && v.poc_email);
+  } else if (wf.id === 'wf02') {
+    return VENDORS.filter(v => (!v.bank_acc || String(v.bank_acc).trim() === '') && v.poc_email);
+  } else if (wf.id === 'wf03') {
+    const today = new Date(); today.setHours(0,0,0,0);
+    return VENDORS.filter(v => {
+      if (!v.agreement_end) return false;
+      const end = new Date(v.agreement_end);
+      const diffDays = Math.ceil((end - today) / (1000*60*60*24));
+      return diffDays >= 0 && diffDays <= 3;
+    });
+  }
+  return [];
+}
+
+function toggleWorkflow(id) {
+  const wf = WORKFLOW_DEFS.find(w => w.id === id);
+  if (!wf) return;
+  wf.enabled = !wf.enabled;
+  const tog = document.getElementById('wf-toggle-'+id);
+  if (tog) tog.classList.toggle('on', wf.enabled);
+  const activeCount = WORKFLOW_DEFS.filter(w => w.enabled).length;
+  const el = document.getElementById('wf-active-count');
+  if (el) el.textContent = activeCount;
+  showWFToast(wf.enabled ? `✓ "${wf.name}" enabled` : `"${wf.name}" paused`, wf.enabled ? 'success' : 'warn');
+}
+
+function saveWorkflow(id) {
+  const wf = WORKFLOW_DEFS.find(w => w.id === id);
+  if (!wf) return;
+  wf.emailSubject = document.getElementById('wf-subject-'+id).value;
+  wf.emailBody    = document.getElementById('wf-body-'+id).value;
+  wf.trigger      = document.getElementById('wf-trigger-'+id).value;
+  showWFToast('✓ Workflow saved', 'success');
+}
+
+function insertPlaceholder(wfId, placeholder) {
+  const ta = document.getElementById('wf-body-'+wfId);
+  if (!ta) return;
+  const pos = ta.selectionStart;
+  ta.value = ta.value.slice(0, pos) + placeholder + ta.value.slice(pos);
+  ta.focus();
+  ta.setSelectionRange(pos + placeholder.length, pos + placeholder.length);
+}
+
+function runWorkflow(id) {
+  const wf = WORKFLOW_DEFS.find(w => w.id === id);
+  if (!wf || !wf.enabled) return;
+
+  const affected = getAffectedVendors(wf);
+  if (affected.length === 0) {
+    showWFToast('No brands matched the condition — no emails sent', 'warn');
+    return;
+  }
+
+  // WF03: Agreement expiry — send to 3 recipients
+  if (id === 'wf03') {
+    const runTime = new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+    const body    = document.getElementById('wf-body-'+id).value;
+    const subject = document.getElementById('wf-subject-'+id).value;
+    affected.forEach((v, i) => {
+      setTimeout(() => {
+        const personalBody = body
+          .replace(/{{company_name}}/g, v.company)
+          .replace(/{{contact_name}}/g, 'Team')
+          .replace(/{{brand_names}}/g, v.brands || v.company)
+          .replace(/{{cid}}/g, v.cid)
+          .replace(/{{poc_email}}/g, v.poc_email || 'N/A')
+          .replace(/{{agreement_end}}/g, v.agreement_end || 'N/A')
+          .replace(/{{store}}/g, 'Nexus Malls (India)');
+        ['accounts@gofynd.com','legal@gofynd.com', v.poc_email].filter(Boolean).forEach(email => {
+          wfEmailLog.push({ wfId: id, vendorCid: v.cid, company: v.company, email, subject, status:'Sent', time: runTime, date: new Date().toDateString() });
+        });
+        const statusEl = document.getElementById('wf-vstatus-'+id+'-'+v.cid);
+        if (statusEl) statusEl.innerHTML = '<span class="badge badge-green" style="font-size:10px"><span class="dot"></span> Sent to 3 recipients</span>';
+        if (i === affected.length - 1) {
+          wf.lastRun = runTime;
+          wf.runHistory.unshift({ time: runTime, sent: affected.length * 3, total: affected.length });
+          const histEl = document.getElementById('wf-history-'+id);
+          if (histEl) histEl.innerHTML = wf.runHistory.slice(0,5).map(h =>
+            '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-secondary)">'+h.time+'</span><span style="color:var(--green)">✓ '+h.sent+' emails ('+h.total+' brands × 3 recipients)</span></div>'
+          ).join('');
+          renderWorkflowStats();
+          showWFToast('✓ Expiry alerts sent to accounts, legal & POC for '+affected.length+' brand'+(affected.length!==1?'s':''), 'success');
+        }
+      }, i * 150);
+    });
+    showWFToast('Sending expiry alerts to 3 recipients per brand…', 'warn');
+    return;
+  }
+
+  const subject = document.getElementById('wf-subject-'+id).value;
+  const body    = document.getElementById('wf-body-'+id).value;
+
+  // Simulate sending emails with animation
+  let sent = 0;
+  const runTime = new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+
+  affected.forEach((v, i) => {
+    setTimeout(() => {
+      // Fill placeholders
+      const personalSubject = subject
+        .replace(/{{company_name}}/g, v.company)
+        .replace(/{{brand_names}}/g, v.brands || v.company)
+        .replace(/{{cid}}/g, v.cid);
+
+      const personalBody = body
+        .replace(/{{company_name}}/g, v.company)
+        .replace(/{{contact_name}}/g, v.poc_email ? v.poc_email.split('@')[0] : 'Sir/Madam')
+        .replace(/{{brand_names}}/g, v.brands || v.company)
+        .replace(/{{cid}}/g, v.cid)
+        .replace(/{{poc_email}}/g, v.poc_email || '')
+        .replace(/{{store}}/g, v.store || 'Nexus Malls (India)');
+
+      // Log it
+      const logEntry = {
+        wfId: id, vendorCid: v.cid, company: v.company,
+        email: v.poc_email, subject: personalSubject,
+        status: 'Sent', time: runTime, date: new Date().toDateString()
+      };
+      wfEmailLog.push(logEntry);
+      sent++;
+
+      // Update row status
+      const statusEl = document.getElementById(`wf-vstatus-${id}-${v.cid}`);
+      if (statusEl) statusEl.innerHTML = '<span class="badge badge-green" style="font-size:10px"><span class="dot"></span> Sent</span>';
+
+      // When all done
+      if (sent === affected.length) {
+        wf.lastRun = runTime;
+        wf.runHistory.unshift({ time: runTime, sent: sent, total: affected.length });
+
+        const histEl = document.getElementById('wf-history-'+id);
+        if (histEl) {
+          histEl.innerHTML = wf.runHistory.slice(0,5).map(h =>
+            `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text-secondary)">${h.time}</span>
+              <span style="color:var(--green)">✓ ${h.sent} email${h.sent!==1?'s':''} sent</span>
+            </div>`
+          ).join('');
+        }
+
+        renderWorkflowStats();
+        showWFToast(`✓ ${sent} email${sent!==1?'s':''} sent successfully for "${wf.name}"`, 'success');
+      }
+    }, i * 120);
+  });
+
+  showWFToast(`Sending ${affected.length} emails…`, 'warn');
+}
+
+function showWFToast(msg, type) {
+  const colors  = { success:'var(--green)', warn:'var(--accent)', error:'var(--red)' };
+  const borders = { success:'rgba(52,211,153,0.3)', warn:'rgba(245,166,35,0.3)', error:'rgba(248,113,113,0.3)' };
+  const toast = document.createElement('div');
+  toast.textContent = msg;
+  toast.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-elevated);border:1px solid ${borders[type]};color:${colors[type]};padding:10px 22px;border-radius:var(--radius);font-size:13px;z-index:9999;font-weight:500;box-shadow:0 4px 24px rgba(0,0,0,0.5);white-space:nowrap`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+
+// ═══════════════════════════════════════
+// VENDOR FIELD UPDATE
+// ═══════════════════════════════════════
+function updateVendorField(cid, field, value) {
+  const v = VENDORS.find(v => v.cid === cid);
+  if (!v) return;
+  v[field] = value || null;
+  // Re-render table to show updated expiry colors
+  applyFilters();
+  // Trigger workflow check refresh
+  initWorkflows();
+}
+
+// ═══════════════════════════════════════
+// DOCUMENT UPLOAD MODULE
+// ═══════════════════════════════════════
+let docUploadCid = null;
+
+function openDocUpload(cid) {
+  docUploadCid = cid;
+  const v = VENDORS.find(v => v.cid === cid);
+  if (!v) return;
+  document.getElementById('doc-modal-title').textContent = v.brands || v.company;
+  document.getElementById('doc-modal-sub').textContent = 'CID ' + cid + ' · ' + (v.company || '');
+  renderDocList(cid);
+  document.getElementById('doc-upload-overlay').style.display = 'flex';
+}
+
+function closeDocUpload() {
+  document.getElementById('doc-upload-overlay').style.display = 'none';
+  docUploadCid = null;
+}
+
+function handleDocDrop(file) {
+  if (file) attachDoc(file);
+}
+
+function handleDocFileSelect(input) {
+  if (input.files && input.files[0]) {
+    attachDoc(input.files[0]);
+    input.value = '';
+  }
+}
+
+function attachDoc(file) {
+  if (!docUploadCid) return;
+  const v = VENDORS.find(v => v.cid === docUploadCid);
+  if (!v) return;
+  if (!v.docs) v.docs = [];
+
+  const typeMap = { agreement:'📄 Agreement', addendum:'📋 Addendum', kyc:'🪪 KYC', bank:'🏦 Bank Proof', gst:'📑 GST Certificate', other:'📁 Other' };
+  const typeVal = document.getElementById('doc-type-select').value;
+  const label   = document.getElementById('doc-label-input').value.trim() || file.name;
+
+  v.docs.push({
+    id: Date.now(),
+    type: typeVal,
+    typeLabel: typeMap[typeVal] || 'Document',
+    label: label,
+    fileName: file.name,
+    size: (file.size / 1024).toFixed(1) + ' KB',
+    uploadedAt: new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }),
+    uploadedBy: 'Admin'
+  });
+
+  document.getElementById('doc-label-input').value = '';
+  renderDocList(docUploadCid);
+  applyFilters(); // refresh docs count in table
+  if (document.getElementById('screen-docs').classList.contains('active')) initDocsScreen();
+  showDocToast('✓ ' + file.name + ' uploaded successfully', 'success');
+}
+
+function deleteDoc(cid, docId) {
+  const v = VENDORS.find(v => v.cid === cid);
+  if (!v || !v.docs) return;
+  v.docs = v.docs.filter(d => d.id !== docId);
+  renderDocList(cid);
+  applyFilters();
+  // Refresh docs screen if it's open
+  if (document.getElementById('screen-docs').classList.contains('active')) initDocsScreen();
+}
+
+function renderDocList(cid) {
+  const v = VENDORS.find(v => v.cid === cid);
+  const container = document.getElementById('doc-list-container');
+  if (!container) return;
+  const docs = v && v.docs ? v.docs : [];
+  if (docs.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:12.5px">No documents uploaded yet</div>';
+    return;
+  }
+  container.innerHTML = docs.map(d => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:20px;flex-shrink:0">${d.typeLabel.split(' ')[0]}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.label}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${d.typeLabel} · ${d.fileName} · ${d.size} · ${d.uploadedAt}</div>
+      </div>
+      <span class="badge badge-blue" style="font-size:10px;flex-shrink:0">${d.typeLabel.split(' ').slice(1).join(' ')}</span>
+      <button onclick="deleteDoc(${cid}, ${d.id})" style="background:var(--red-dim);border:1px solid rgba(248,113,113,0.2);color:var(--red);border-radius:var(--radius-sm);padding:4px 10px;font-size:11px;cursor:pointer;flex-shrink:0">Delete</button>
+    </div>
+  `).join('');
+}
+
+function showDocToast(msg, type) {
+  const colors  = { success:'var(--green)', warn:'var(--accent)', error:'var(--red)' };
+  const borders = { success:'rgba(52,211,153,0.3)', warn:'rgba(245,166,35,0.3)', error:'rgba(248,113,113,0.3)' };
+  const toast = document.createElement('div');
+  toast.textContent = msg;
+  toast.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-elevated);border:1px solid ${borders[type]};color:${colors[type]};padding:10px 22px;border-radius:var(--radius);font-size:13px;z-index:9999;font-weight:500;box-shadow:0 4px 24px rgba(0,0,0,0.5);white-space:nowrap`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3200);
+}
+
+// ═══════════════════════════════════════
+// WORKFLOW 3 — Agreement Expiry Alert
+// ═══════════════════════════════════════
+// Injected into WORKFLOW_DEFS after page load
+
+
+
+
+// ═══════════════════════════════════════
+// DOCUMENTS REPOSITORY MODULE
+// ═══════════════════════════════════════
+
+let docsActiveCid = null; // null = folder grid, number = inside folder
+
+function initDocsScreen() {
+  docsActiveCid = null;
+  filterDocs();
+}
+
+function getAllFoldersWithDocs() {
+  return VENDORS
+    .filter(v => v.docs && v.docs.length > 0)
+    .map(v => ({ vendor: v, docs: v.docs }));
+}
+
+function getAllDocs() {
+  const results = [];
+  VENDORS.forEach(v => {
+    if (v.docs && v.docs.length > 0) {
+      v.docs.forEach(d => results.push({ vendor: v, doc: d }));
+    }
+  });
+  return results;
+}
+
+function filterDocs() {
+  const q    = (document.getElementById('docs-search')?.value || '').toLowerCase();
+  const type = document.getElementById('docs-type-filter')?.value || '';
+
+  const allDocs = getAllDocs();
+  const filtered = allDocs.filter(({ vendor: v, doc: d }) => {
+    const matchQ = !q ||
+      String(v.cid).includes(q) ||
+      (v.company||'').toLowerCase().includes(q) ||
+      (v.brands||'').toLowerCase().includes(q) ||
+      (d.label||'').toLowerCase().includes(q) ||
+      (d.fileName||'').toLowerCase().includes(q);
+    const matchType = !type || d.type === type;
+    return matchQ && matchType;
+  });
+
+  // Compute folder stats
+  const foldersWithDocs = [...new Set(filtered.map(({ vendor: v }) => v.cid))].length;
+  const totalFiles = filtered.length;
+  const totalFolderEl = document.getElementById('docs-total-folders');
+  const totalFileEl   = document.getElementById('docs-total-files');
+  const countLabel    = document.getElementById('docs-count-label');
+  if (totalFolderEl) totalFolderEl.textContent = foldersWithDocs;
+  if (totalFileEl)   totalFileEl.textContent   = totalFiles;
+  if (countLabel)    countLabel.textContent     = totalFiles === 0 ? '' : foldersWithDocs + ' folders · ' + totalFiles + ' documents';
+
+  if (docsActiveCid !== null) {
+    renderFileList(docsActiveCid, q, type);
+  } else {
+    renderFolderGrid(filtered, q, type);
+  }
+}
+
+function renderFolderGrid(filteredItems, q, type) {
+  const grid    = document.getElementById('docs-folder-grid');
+  const filelist = document.getElementById('docs-file-list');
+  const empty   = document.getElementById('docs-empty');
+  const crumb   = document.getElementById('docs-breadcrumb');
+
+  if (grid)     grid.style.display     = '';
+  if (filelist) filelist.style.display = 'none';
+  if (crumb)    crumb.style.display    = 'none';
+
+  // Group by vendor
+  const folderMap = {};
+  filteredItems.forEach(({ vendor: v, doc: d }) => {
+    if (!folderMap[v.cid]) folderMap[v.cid] = { vendor: v, docs: [] };
+    folderMap[v.cid].docs.push(d);
+  });
+
+  const folders = Object.values(folderMap);
+
+  if (!grid) return;
+
+  if (folders.length === 0) {
+    grid.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  const typeIcons = { agreement:'📄', addendum:'📋', kyc:'🪪', bank:'🏦', gst:'📑', other:'📁' };
+  const typeColors = { agreement:'var(--blue-dim)', addendum:'var(--purple-dim)', kyc:'var(--green-dim)', bank:'var(--accent-dim)', gst:'var(--teal-dim)', other:'var(--bg-elevated)' };
+
+  grid.innerHTML = folders.map(({ vendor: v, docs }) => {
+    const folderName = v.cid + '_' + (v.company || v.brands || 'Unknown').replace(/[^a-zA-Z0-9 ]/g,' ').trim().toUpperCase();
+    const typeSummary = [...new Set(docs.map(d => d.type))].map(t => typeIcons[t] || '📁').join(' ');
+    const latestDoc = docs[docs.length - 1];
+    return `
+      <div onclick="openFolder(${v.cid})"
+        style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all var(--transition)"
+        onmouseover="this.style.borderColor='var(--border-active)';this.style.background='var(--bg-card-hover)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--bg-card)';this.style.transform=''">
+        <!-- Folder icon -->
+        <div style="width:44px;height:38px;background:var(--accent-dim);border-radius:var(--radius-sm) var(--radius-sm) 0 0;border-bottom:3px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px;position:relative">
+          📁
+          <span style="position:absolute;top:-6px;right:-6px;background:var(--accent);color:#0D0F1A;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px">${docs.length}</span>
+        </div>
+        <div style="font-size:11.5px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text-primary);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${folderName}">${folderName}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">${v.brands || v.company}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px">${typeSummary}</span>
+          <span style="font-size:10.5px;color:var(--text-muted)">${latestDoc ? latestDoc.uploadedAt.split(',')[0] : ''}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openFolder(cid) {
+  docsActiveCid = cid;
+  const v = VENDORS.find(v => v.cid === cid);
+  const folderName = cid + '_' + (v?.company || 'Unknown').replace(/[^a-zA-Z0-9 ]/g,' ').trim().toUpperCase();
+
+  // Update breadcrumb
+  const crumb = document.getElementById('docs-breadcrumb');
+  const crumbName = document.getElementById('docs-breadcrumb-name');
+  if (crumb) crumb.style.display = 'flex';
+  if (crumbName) crumbName.textContent = folderName;
+
+  renderFileList(cid, '', '');
+  document.getElementById('docs-folder-grid').style.display = 'none';
+  document.getElementById('docs-file-list').style.display = 'block';
+}
+
+function closeFolderView() {
+  docsActiveCid = null;
+  document.getElementById('docs-folder-grid').style.display = '';
+  document.getElementById('docs-file-list').style.display = 'none';
+  document.getElementById('docs-breadcrumb').style.display = 'none';
+  filterDocs();
+}
+
+function renderFileList(cid, q, typeFilter) {
+  const v = VENDORS.find(v => v.cid === cid);
+  const tbody = document.getElementById('docs-file-tbody');
+  if (!tbody || !v) return;
+
+  const typeIcons  = { agreement:'📄', addendum:'📋', kyc:'🪪', bank:'🏦', gst:'📑', other:'📁' };
+  const typeLabels = { agreement:'Agreement', addendum:'Addendum', kyc:'KYC', bank:'Bank Proof', gst:'GST Cert', other:'Other' };
+  const typeBadge  = { agreement:'badge-blue', addendum:'badge-purple', kyc:'badge-green', bank:'badge-amber', gst:'badge-teal', other:'badge-blue' };
+
+  let docs = v.docs || [];
+  if (q) docs = docs.filter(d => (d.label||'').toLowerCase().includes(q) || (d.fileName||'').toLowerCase().includes(q));
+  if (typeFilter) docs = docs.filter(d => d.type === typeFilter);
+
+  if (docs.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">No documents match your filters</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = docs.map(d => `
+    <tr style="transition:background 0.15s" onmouseover="this.style.background='var(--bg-elevated)'" onmouseout="this.style.background=''">
+      <td style="font-size:20px;text-align:center">${typeIcons[d.type] || '📁'}</td>
+      <td>
+        <div style="font-weight:500;font-size:13px">${d.label}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:1px">${d.fileName}</div>
+      </td>
+      <td><span class="badge ${typeBadge[d.type]||'badge-blue'}" style="font-size:10.5px">${typeLabels[d.type]||'Other'}</span></td>
+      <td class="mono" style="font-size:11.5px;color:var(--text-muted)">${d.fileName}</td>
+      <td style="color:var(--text-muted);font-size:12px">${d.size}</td>
+      <td style="color:var(--text-secondary);font-size:12px">${d.uploadedBy}</td>
+      <td style="color:var(--text-muted);font-size:11.5px">${d.uploadedAt}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button onclick="viewDoc(${cid},${d.id})" class="btn btn-ghost btn-sm" style="font-size:11px">View</button>
+          <button onclick="downloadDoc(${cid},${d.id})" class="btn btn-primary btn-sm" style="font-size:11px">Download</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function viewDoc(cid, docId) {
+  const v = VENDORS.find(v => v.cid === cid);
+  const d = v?.docs?.find(d => d.id === docId);
+  if (!d) return;
+  // In a real implementation this opens a signed URL — show info toast
+  showDocToast('📄 ' + d.label + ' — preview not available in demo mode', 'warn');
+}
+
+function downloadDoc(cid, docId) {
+  const v = VENDORS.find(v => v.cid === cid);
+  const d = v?.docs?.find(d => d.id === docId);
+  if (!d) return;
+  showDocToast('⬇ ' + d.fileName + ' download would start here', 'success');
+}
+
+// ═══════════════════════════════════════
+// IMPORT BRANDS MODULE
+// ═══════════════════════════════════════
+function importBrands(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  input.value = '';
+
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['csv','xlsx','xls'].includes(ext)) {
+    showImportToast('❌ Unsupported format. Use CSV, XLSX or XLS', 'error'); return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const rows = parseCSV(e.target.result);
+      if (!rows || rows.length < 2) { showImportToast('⚠ File appears empty', 'warn'); return; }
+
+      const headers = rows[0].map(h => h.trim().toLowerCase());
+      const dataRows = rows.slice(1).filter(r => r.some(c => c !== ''));
+
+      // Map common header variations to our field names
+      const fieldMap = {
+        cid: ['cid','company_id','id'],
+        company: ['company_name','company','legal_name'],
+        brands: ['brand_names','brand','brands','brand name'],
+        pan: ['pan_number','pan','pan number'],
+        gst: ['gst_number','gst','gstin'],
+        status: ['company_status','status'],
+        tot: ['tot_status','tot'],
+        agreement: ['agreement_status','agreement'],
+        agreement_start: ['agreement_start_date','agreement_start','agr. start date','start_date'],
+        agreement_end: ['agreement_end_date','agreement_end','agr. end date','end_date'],
+        model: ['model'],
+        commission: ['commission'],
+        pg: ['pg_charges','pg'],
+        logistics: ['logistics_charges','logistics charges','logistics'],
+        packaging: ['packaging_charges','packaging'],
+        sla: ['sla_charges','sla'],
+        bank_acc: ['bank_account_number','bank_acc','bank account'],
+        ifsc: ['bank_ifsc_code','ifsc'],
+        link_acc: ['link_account_id','link_acc'],
+        poc_phone: ['brand_poc_contact_no','poc_phone','phone','contact'],
+        poc_email: ['brand_business_poc','poc_email','email'],
+      };
+
+      function findCol(fieldKeys) {
+        for (const key of fieldKeys) {
+          const idx = headers.indexOf(key);
+          if (idx !== -1) return idx;
+        }
+        return -1;
+      }
+
+      const colIdx = {};
+      Object.entries(fieldMap).forEach(([field, keys]) => {
+        colIdx[field] = findCol(keys);
+      });
+
+      let added = 0, updated = 0;
+      dataRows.forEach(row => {
+        const get = (field) => {
+          const i = colIdx[field];
+          return i !== -1 ? (row[i]||'').trim() : null;
+        };
+
+        const cid = parseInt(get('cid')) || null;
+        if (!cid) return;
+
+        const existing = VENDORS.find(v => v.cid === cid);
+        const commission = get('commission');
+        const commVal = commission ? (parseFloat(commission.replace('%',''))/100 || null) : null;
+        const pg = get('pg');
+        const pgVal = pg === 'NA' ? 'NA' : (pg ? parseFloat(pg.replace('%',''))/100 || null : null);
+
+        const newData = {
+          cid,
+          company:         get('company') || (existing?.company || ''),
+          brands:          get('brands')  || (existing?.brands  || ''),
+          store:           'Nexus Malls (India)',
+          pan:             get('pan')      || (existing?.pan      || null),
+          gst:             get('gst')      || (existing?.gst      || null),
+          status:          get('status')   || (existing?.status   || 'Live & Active'),
+          tot:             get('tot')      || (existing?.tot      || null),
+          agreement:       get('agreement')|| (existing?.agreement|| null),
+          agreement_start: get('agreement_start') || (existing?.agreement_start || null),
+          agreement_end:   get('agreement_end')   || (existing?.agreement_end   || null),
+          model:           get('model')    || (existing?.model    || null),
+          commission:      commVal         !== null ? commVal : (existing?.commission || null),
+          pg:              pgVal           !== null ? pgVal   : (existing?.pg         || null),
+          logistics:       get('logistics')|| (existing?.logistics|| null),
+          packaging:       get('packaging')|| (existing?.packaging|| null),
+          sla:             get('sla')      || (existing?.sla      || null),
+          exceptions:      null,
+          bank_acc:        get('bank_acc') || (existing?.bank_acc || null),
+          ifsc:            get('ifsc')     || (existing?.ifsc     || null),
+          link_acc:        get('link_acc') || (existing?.link_acc || null),
+          poc_phone:       get('poc_phone')|| (existing?.poc_phone|| null),
+          poc_email:       get('poc_email')|| (existing?.poc_email|| null),
+          docs:            existing?.docs  || [],
+        };
+
+        if (existing) {
+          Object.assign(existing, newData);
+          updated++;
+        } else {
+          VENDORS.push(newData);
+          added++;
+        }
+      });
+
+      applyFilters();
+      renderUploadStats?.();
+      showImportToast(`✓ Import complete — ${added} added, ${updated} updated from ${file.name}`, 'success');
+    } catch (err) {
+      showImportToast('❌ Parse error: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function showImportToast(msg, type) {
+  const colors  = { success:'var(--green)', warn:'var(--accent)', error:'var(--red)' };
+  const borders = { success:'rgba(52,211,153,0.3)', warn:'rgba(245,166,35,0.3)', error:'rgba(248,113,113,0.3)' };
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-elevated);border:1px solid ${borders[type]};color:${colors[type]};padding:10px 22px;border-radius:var(--radius);font-size:13px;z-index:9999;font-weight:500;box-shadow:0 4px 24px rgba(0,0,0,0.5);max-width:90vw;text-align:center`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
 
 </script>
 </body>
