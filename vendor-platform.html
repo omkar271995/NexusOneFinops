@@ -192,47 +192,6 @@
   .sort-asc::after { content: ' ↑'; color: var(--accent); }
   .sort-desc::after { content: ' ↓'; color: var(--accent); }
 
-  /* BQ TOGGLE */
-  .bq-toggle { width: 36px; height: 20px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; position: relative; cursor: pointer; transition: all var(--transition); flex-shrink:0; }
-  .bq-toggle.on { background: var(--accent); border-color: var(--accent); }
-  .bq-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: white; transition: all var(--transition); }
-  .bq-toggle.on::after { left: 18px; }
-
-  /* FORM */
-  .form-group { margin-bottom: 12px; }
-  .form-label { display: block; font-size: 10.5px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
-  .form-input, .form-select, .form-textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; color: var(--text-primary); font-size: 13px; font-family: 'DM Sans', sans-serif; transition: all var(--transition); }
-  .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
-  .form-input::placeholder { color: var(--text-muted); }
-  .form-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
-
-  /* ACCORDION */
-  .bq-accordion { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; transition: border-color var(--transition); }
-  .bq-accordion.active { border-color: var(--border-active); }
-  .bq-accordion-head { display: flex; align-items: center; gap: 14px; padding: 14px 18px; cursor: pointer; user-select: none; }
-  .bq-accordion-head:hover { background: var(--bg-elevated); }
-  .bq-accordion-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
-  .bq-accordion.active .bq-accordion-body { display: block; }
-  .bq-chevron { width: 14px; height: 14px; stroke: var(--text-muted); fill: none; stroke-width: 2; stroke-linecap: round; transition: transform var(--transition); margin-left: auto; flex-shrink:0; }
-  .bq-accordion.active .bq-chevron { transform: rotate(180deg); }
-
-  /* QUERY STATUS */
-  .q-status { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 9px; border-radius: 20px; }
-  .q-status.ok { background: var(--green-dim); color: var(--green); }
-  .q-status.warn { background: var(--accent-dim); color: var(--accent); }
-  .q-status.err { background: var(--red-dim); color: var(--red); }
-
-  /* PREVIEW TABLE */
-  .preview-table-wrap { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: auto; max-height: 180px; margin-top: 12px; }
-  .preview-table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 11.5px; }
-  .preview-table th { padding: 6px 10px; background: var(--bg-elevated); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.04em; white-space: nowrap; border-bottom: 1px solid var(--border); text-align: left; }
-  .preview-table td { padding: 5px 10px; border-bottom: 1px solid var(--border); color: var(--text-secondary); white-space: nowrap; font-family: 'DM Mono', monospace; }
-  .preview-table tr:last-child td { border-bottom: none; }
-
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 10px; }
-
   /* CHIP */
   .chip { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); }
 </style>
@@ -276,9 +235,9 @@
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         Communications
       </div>
-      <div class="nav-item" onclick="nav('bigquery')">
-        <svg class="nav-icon" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-        BigQuery
+      <div class="nav-item" onclick="nav('upload')">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload Data
       </div>
     </div>
     <div class="nav-section">
@@ -485,13 +444,6 @@
       </div>
       <div id="screen-reports" class="screen">
 
-        <!-- BQ CONNECTION BANNER -->
-        <div style="background:rgba(79,142,247,0.06);border:1px solid rgba(79,142,247,0.18);border-radius:var(--radius);padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:12px">
-          <svg style="width:16px;height:16px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;flex-shrink:0" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-          <div style="flex:1;font-size:12.5px;color:var(--text-secondary)"><strong style="color:var(--blue)">BigQuery not connected.</strong> Reports below use sample data from your uploaded files. Once you connect BigQuery, data will be fetched live via the configured queries.</div>
-          <button class="btn btn-ghost btn-sm" onclick="nav('bigquery')" style="border-color:rgba(79,142,247,0.3);color:var(--blue)">Connect BigQuery →</button>
-        </div>
-
         <!-- REPORT CARDS -->
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px" id="report-cards"></div>
 
@@ -505,7 +457,7 @@
               <div id="rp-meta" style="font-size:11.5px;color:var(--text-muted);margin-top:2px"></div>
             </div>
             <div style="display:flex;gap:8px;align-items:center">
-              <span style="font-size:11.5px;color:var(--text-muted)" id="rp-data-source"></span>
+              
               <button class="btn btn-ghost btn-sm" id="btn-export-csv" onclick="exportReportCSV()">
                 <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Export CSV
@@ -536,12 +488,6 @@
             </div>
           </div>
 
-          <!-- BQ QUERY BOX (shown when BQ connected) -->
-          <div id="rp-query-box" style="display:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px">
-            <div style="font-size:10.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">BigQuery Query</div>
-            <pre id="rp-query-text" style="font-family:'DM Mono',monospace;font-size:11.5px;color:var(--text-secondary);margin:0;white-space:pre-wrap;line-height:1.6"></pre>
-          </div>
-
           <!-- TABLE -->
           <div class="table-wrap">
             <div class="table-scroll">
@@ -565,86 +511,18 @@
           <div style="color:var(--text-muted);font-size:13px">Email templates, delivery history, and communication logs per vendor.</div>
         </div>
       </div>
-      <div id="screen-bigquery" class="screen">
+      <div id="screen-upload" class="screen">
 
-        <!-- TOP: CONNECTION CONFIG -->
-        <div style="display:grid;grid-template-columns:1fr 300px;gap:16px;margin-bottom:20px">
-
-          <!-- LEFT: GCP credentials -->
-          <div class="section-card" style="margin-bottom:0">
-            <div class="section-header">
-              <div>
-                <div class="section-title">GCP Connection</div>
-                <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">One shared connection used across all report queries</div>
-              </div>
-              <div style="display:flex;align-items:center;gap:8px">
-                <span id="bq-conn-badge" class="badge badge-red"><span class="dot"></span> Not connected</span>
-                <button class="btn btn-primary btn-sm" onclick="testBQConnection()">Test Connection</button>
-              </div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div class="form-group" style="margin-bottom:0">
-                <label class="form-label">GCP Project ID</label>
-                <input class="form-input" id="bq-project" placeholder="my-gcp-project-prod" value="nexus-vendor-prod">
-              </div>
-              <div class="form-group" style="margin-bottom:0">
-                <label class="form-label">Default Dataset</label>
-                <input class="form-input" id="bq-dataset" placeholder="vendor_analytics" value="nexus_analytics">
-              </div>
-              <div class="form-group" style="grid-column:1/-1;margin-bottom:0">
-                <label class="form-label">Service Account Key (JSON)</label>
-                <div onclick="document.getElementById('bq-sa-file').click()" style="border:1.5px dashed var(--border-active);border-radius:var(--radius-sm);padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all var(--transition)" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border-active)'">
-                  <svg style="width:16px;height:16px;stroke:var(--text-muted);fill:none;stroke-width:1.8;stroke-linecap:round;flex-shrink:0" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                  <span id="bq-sa-label" style="font-size:12.5px;color:var(--text-muted)">Click to upload service-account-key.json</span>
-                  <input type="file" id="bq-sa-file" accept=".json" style="display:none" onchange="handleSAUpload(this)">
-                </div>
-              </div>
-            </div>
-            <div id="bq-conn-msg" style="margin-top:12px;font-size:12px;display:none"></div>
-          </div>
-
-          <!-- RIGHT: Global settings -->
-          <div class="section-card" style="margin-bottom:0">
-            <div class="section-title" style="margin-bottom:14px">Query Defaults</div>
-            <div class="form-group">
-              <label class="form-label">Report Date Parameter</label>
-              <input class="form-input" id="bq-date-param" value="@report_date" style="font-family:'DM Mono',monospace;font-size:12px">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Vendor ID Parameter</label>
-              <input class="form-input" id="bq-vendor-param" value="@vendor_id" style="font-family:'DM Mono',monospace;font-size:12px">
-            </div>
-            <div class="form-group" style="margin-bottom:0">
-              <label class="form-label">Max Rows per Vendor</label>
-              <input class="form-input" id="bq-max-rows" value="10000" type="number">
-            </div>
-            <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:14px;display:flex;align-items:center;justify-content:space-between">
-              <div style="font-size:12.5px;font-weight:500">Cache query results</div>
-              <div class="bq-toggle on" id="tog-cache" onclick="this.classList.toggle('on')"></div>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
-              <div style="font-size:12.5px;font-weight:500">Retry on failure</div>
-              <div class="bq-toggle on" id="tog-retry" onclick="this.classList.toggle('on')"></div>
-            </div>
-          </div>
+        <!-- HEADER SUMMARY -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px" id="upload-stats-grid">
+          <!-- filled by JS -->
         </div>
 
-        <!-- REPORT QUERY CONFIGS — one accordion per report -->
-        <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:600;margin-bottom:12px">Report Query Configuration</div>
-        <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:16px">Each report has its own BigQuery table/view and query. Configure independently.</div>
-
-        <div id="bq-report-accordions"></div>
-
-        <!-- SAVE BUTTON -->
-        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
-          <button class="btn btn-ghost btn-sm" onclick="resetBQConfig()">Reset to Defaults</button>
-          <button class="btn btn-primary" onclick="saveBQConfig()">
-            <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            Save All Query Config
-          </button>
-        </div>
+        <!-- REPORT UPLOAD CARDS -->
+        <div id="upload-report-cards" style="display:flex;flex-direction:column;gap:12px"></div>
 
       </div>
+
       <div id="screen-audit" class="screen">
         <div class="section-card" style="text-align:center;padding:40px">
           <div style="font-size:28px;margin-bottom:12px">🔒</div>
@@ -1105,7 +983,7 @@ function exportCSV() {
 // ═══════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════
-const pageNames = {dashboard:'Dashboard',vendors:'Vendors — Nexus Seawoods Mall',docs:'Documents',reports:'Reports & Scheduling',comms:'Communications',bigquery:'BigQuery Integration',audit:'Audit Logs',settings:'Settings'};
+const pageNames = {dashboard:'Dashboard',vendors:'Vendors — Nexus Seawoods Mall',docs:'Documents',reports:'Reports & Scheduling',comms:'Communications',upload:'Upload Report Data',audit:'Audit Logs',settings:'Settings'};
 
 function nav(screen) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1115,11 +993,7 @@ function nav(screen) {
   document.querySelectorAll('.nav-item').forEach(n => {
     if ((n.getAttribute('onclick')||'').includes("'"+screen+"'")) n.classList.add('active');
   });
-  if (screen === 'bigquery') {
-    initBQAccordions();
-    const first = document.querySelector('.bq-accordion');
-    if (first && !first.classList.contains('active')) first.classList.add('active');
-  }
+  if (screen === 'upload') initUploadScreen();
 }
 
 // ═══════════════════════════════════════
@@ -1407,7 +1281,6 @@ const REPORTS = [
     color: 'var(--blue-dim)',
     iconColor: 'var(--blue)',
     description: 'Bag-level transaction data with payment, item & pricing details',
-    bqTable: 'nexus_analytics.transactional_report',
     columns: [
       'Transaction_Type','bag_status_id','date','bag_status_created_at','bag_created_date',
       'Created_Date','order_platform','ordering_channel','ordering_source','new_ordering_channel',
@@ -1421,8 +1294,7 @@ const REPORTS = [
       'fynd_promotion_discount','seller_promotion_discount','Billed_Amount','Amount_Paid',
       'employee_discount','loyalty_discount','Revenue','unit_price','total_charges',
       'charges_name','State'
-    ],
-    bqQuery: `SELECT *\nFROM \`nexus_analytics.transactional_report\`\nWHERE DATE(bag_created_date) = @report_date\n  AND affiliate_name = 'NEXUS'\nORDER BY bag_created_date DESC\nLIMIT 10000`,
+        ],
     sampleData: generateTransactionalData()
   },
   {
@@ -1433,7 +1305,6 @@ const REPORTS = [
     color: 'var(--purple-dim)',
     iconColor: 'var(--purple)',
     description: 'Reconciliation of payables with GST, TDS, TCS breakdown per bag',
-    bqTable: 'nexus_analytics.recon_report',
     columns: [
       'Company_Id','Company_Name','brand','Store_Code','Transaction_Type','bag_id',
       'shipment_id','DP','awb','order_id','State','State_date','Accounting_Date',
@@ -1441,8 +1312,7 @@ const REPORTS = [
       'Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount',
       'ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price',
       'Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable'
-    ],
-    bqQuery: `SELECT *\nFROM \`nexus_analytics.recon_report\`\nWHERE DATE(Accounting_Date) BETWEEN @from_date AND @to_date\n  AND Store_Code IS NOT NULL\nORDER BY Accounting_Date DESC`,
+        ],
     sampleData: generateReconData()
   },
   {
@@ -1453,7 +1323,6 @@ const REPORTS = [
     color: 'var(--green-dim)',
     iconColor: 'var(--green)',
     description: 'Settlement payouts with UTR, payment dates and dispute tracking',
-    bqTable: 'nexus_analytics.settlement_report',
     columns: [
       'Company_Id','Company_Name','brand','Store_Code','Transaction_Type','Booking_Type',
       'bag_id','shipment_id','DP','awb','order_id','State','State_date','Accounting_Date',
@@ -1462,8 +1331,7 @@ const REPORTS = [
       'ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price',
       'Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable','Paid_Amt',
       'Payment_Date','UTR','payout_id','Dispute','Payable_amt','inserted_date'
-    ],
-    bqQuery: `SELECT *\nFROM \`nexus_analytics.settlement_report\`\nWHERE DATE(Payment_Date) BETWEEN @from_date AND @to_date\nORDER BY Payment_Date DESC`,
+        ],
     sampleData: generateSettlementData()
   },
   {
@@ -1474,7 +1342,6 @@ const REPORTS = [
     color: 'var(--accent-dim)',
     iconColor: 'var(--accent)',
     description: 'Commission invoice lines with invoice number and generation date',
-    bqTable: 'nexus_analytics.commission_invoice_report',
     columns: [
       'Company_Id','Company_Name','brand','Store_Code','Transaction_Type','bag_id',
       'shipment_id','DP','awb','order_id','State','State_date','Accounting_Date',
@@ -1483,8 +1350,7 @@ const REPORTS = [
       'ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price',
       'Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable',
       'Invoice_Generation_Date','Invoice_No'
-    ],
-    bqQuery: `SELECT *\nFROM \`nexus_analytics.commission_invoice_report\`\nWHERE DATE(Invoice_Generation_Date) = @invoice_date\n  AND Company_Id IS NOT NULL\nORDER BY Invoice_Generation_Date DESC`,
+        ],
     sampleData: generateCommissionData()
   },
   {
@@ -1495,14 +1361,12 @@ const REPORTS = [
     color: 'var(--teal-dim)',
     iconColor: 'var(--teal)',
     description: 'Shipment logistics charges with zone, weight, DP and invoice reference',
-    bqTable: 'nexus_analytics.logistics_invoice_report',
     columns: [
       'Company_ID','Company_Name','ordering_channel','affiliate_name','Plan',
       'dp_name','delivery_partner_id','Shipment_id','awb','final_zone','package_type',
       'journey','cod_amount','charged_weight','total_distance_km','dl_chgs_final',
       'cod_charges','qc_charges','net_charges','gst','total','Invoice_Month','Invoice_No'
-    ],
-    bqQuery: `SELECT *\nFROM \`nexus_analytics.logistics_invoice_report\`\nWHERE Invoice_Month = @invoice_month\n  AND Company_ID IS NOT NULL\nORDER BY Invoice_No, Shipment_id`,
+        ],
     sampleData: generateLogisticsData()
   }
 ];
@@ -1552,9 +1416,9 @@ function openReport(id) {
   document.getElementById('rp-icon').style.background = activeReport.color;
   document.getElementById('rp-icon').textContent = activeReport.icon;
   document.getElementById('rp-title').textContent = activeReport.code + '. ' + activeReport.name;
-  document.getElementById('rp-meta').textContent = activeReport.columns.length + ' columns · ' + activeReport.sampleData.length + ' rows · Sample data (BigQuery not connected)';
-  document.getElementById('rp-data-source').innerHTML = '<span style="color:var(--accent);font-size:11px">⚡ Sample data</span>';
-  document.getElementById('rp-query-text').textContent = activeReport.bqQuery;
+  document.getElementById('rp-meta').textContent = activeReport.columns.length + ' columns · ' + activeReport.sampleData.length + ' rows · Sample data';
+  
+  
 
   // Init column visibility
   rpColVis = {};
@@ -1695,7 +1559,7 @@ function renderReportTable() {
       }).join('');
 
   document.getElementById('rp-count').textContent = rpFiltered.length + ' rows';
-  document.getElementById('rp-meta').textContent = activeReport.columns.length + ' columns · ' + rpFiltered.length + ' of ' + activeReport.sampleData.length + ' rows · Sample data (BigQuery not connected)';
+  document.getElementById('rp-meta').textContent = activeReport.columns.length + ' columns · ' + rpFiltered.length + ' of ' + activeReport.sampleData.length + ' rows · Sample data';
   renderRpPagination();
 }
 
@@ -1751,7 +1615,7 @@ function exportReportXLSX() {
   exportReportCSV();
   // Show a toast
   const toast = document.createElement('div');
-  toast.textContent = '✓ Report exported as CSV (connect BigQuery for live XLSX)';
+  toast.textContent = '✓ Report exported as CSV';
   toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-elevated);border:1px solid var(--border-active);color:var(--text-primary);padding:10px 20px;border-radius:var(--radius);font-size:13px;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.4)';
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
@@ -1765,261 +1629,194 @@ sortData();
 renderTable();
 initReportCards();
 
+
+
+
+
 // ═══════════════════════════════════════
-// BIGQUERY MODULE
+// UPLOAD DATA MODULE
 // ═══════════════════════════════════════
 
-// Per-report BQ config state (pre-filled with real column names from xlsb files)
-const BQ_REPORT_CONFIGS = [
+const UPLOAD_REPORTS = [
   {
-    id: 'r01',
-    code: '01',
-    name: 'Transactional Report',
-    icon: '🧾',
-    iconColor: 'var(--blue)',
-    bqTable: 'nexus_analytics.transactional_report',
+    id: 'r01', code: '01', name: 'Transactional Report',
+    icon: '🧾', color: 'var(--blue-dim)', iconColor: 'var(--blue)',
     description: 'Bag-level transaction data — item, payment, pricing, state',
-    columns: ['Transaction_Type','bag_status_id','date','bag_status_created_at','bag_created_date','Created_Date','order_platform','ordering_channel','ordering_source','new_ordering_channel','mode_of_payment','State_Date','expected_date_of_del','bag_id','parent_id','shipment_id','affiliate_shipment_id','affiliate_bag_id','order_id','affiliate_order_id','affiliate_name','po_number','customer_gstin','Itemcode','Item_ID','Articlecode','tag_number','seller_identifier','ean','sku_code','is_set_article','article_qnty','Item_Name','Size','Brand','brand_id','Gender','Payment','payment_mode','multi_tender_mode','transfer_price','ESP','Fees','delivery_charge','cod_charge','Cashback_Used','Fynd_Credits','Coupon_Discount','Promotion_Effective_Discount','payable_category','fynd_promotion_discount','seller_promotion_discount','Billed_Amount','Amount_Paid','employee_discount','loyalty_discount','Revenue','unit_price','total_charges','charges_name','State'],
-    defaultQuery: `SELECT\n  Transaction_Type, bag_id, shipment_id, order_id,\n  affiliate_name, Brand, Item_Name, Size,\n  ESP, Amount_Paid, Revenue, State,\n  bag_created_date, State_Date\nFROM \`{project}.{dataset}.transactional_report\`\nWHERE DATE(bag_created_date) = @report_date\n  AND affiliate_name = 'NEXUS'\nORDER BY bag_created_date DESC\nLIMIT 10000`,
-    savedQuery: null,
-    status: 'not_tested',
-    lastTested: null,
-    previewRows: null
+    requiredCols: ['Transaction_Type','bag_id','shipment_id','order_id','Brand','ESP','Amount_Paid','State','bag_created_date'],
+    allCols: ['Transaction_Type','bag_status_id','date','bag_status_created_at','bag_created_date','Created_Date','order_platform','ordering_channel','ordering_source','new_ordering_channel','mode_of_payment','State_Date','expected_date_of_del','bag_id','parent_id','shipment_id','affiliate_shipment_id','affiliate_bag_id','order_id','affiliate_order_id','affiliate_name','po_number','customer_gstin','Itemcode','Item_ID','Articlecode','tag_number','seller_identifier','ean','sku_code','is_set_article','article_qnty','Item_Name','Size','Brand','brand_id','Gender','Payment','payment_mode','multi_tender_mode','transfer_price','ESP','Fees','delivery_charge','cod_charge','Cashback_Used','Fynd_Credits','Coupon_Discount','Promotion_Effective_Discount','payable_category','fynd_promotion_discount','seller_promotion_discount','Billed_Amount','Amount_Paid','employee_discount','loyalty_discount','Revenue','unit_price','total_charges','charges_name','State']
   },
   {
-    id: 'r02',
-    code: '02',
-    name: 'Recon Report',
-    icon: '🔁',
-    iconColor: 'var(--purple)',
-    bqTable: 'nexus_analytics.recon_report',
+    id: 'r02', code: '02', name: 'Recon Report',
+    icon: '🔁', color: 'var(--purple-dim)', iconColor: 'var(--purple)',
     description: 'Reconciliation — GST, TDS, TCS, Amount Payable per bag',
-    columns: ['Company_Id','Company_Name','brand','Store_Code','Transaction_Type','bag_id','shipment_id','DP','awb','order_id','State','State_date','Accounting_Date','Liability_date','expected_payout_date','ordering_channel','Payment','coupon_category','Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount','ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price','Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable'],
-    defaultQuery: `SELECT\n  Company_Id, Company_Name, brand, Store_Code,\n  Transaction_Type, bag_id, shipment_id, DP, awb, order_id,\n  State, State_date, Accounting_Date, Liability_date, expected_payout_date,\n  ordering_channel, Payment, MRP, store_discount, ESP,\n  value_of_good, GST, seller_promotion_discount, Coupon_Discount,\n  unit_price, Nexus_Discount, Amount_Paid, TDS, TCS, Amount_Payable\nFROM \`{project}.{dataset}.recon_report\`\nWHERE DATE(Accounting_Date) BETWEEN @from_date AND @to_date\n  AND Store_Code IS NOT NULL\nORDER BY Accounting_Date DESC`,
-    savedQuery: null,
-    status: 'not_tested',
-    lastTested: null,
-    previewRows: null
+    requiredCols: ['Company_Id','Company_Name','bag_id','State','Accounting_Date','MRP','ESP','Amount_Paid','TDS','TCS','Amount_Payable'],
+    allCols: ['Company_Id','Company_Name','brand','Store_Code','Transaction_Type','bag_id','shipment_id','DP','awb','order_id','State','State_date','Accounting_Date','Liability_date','expected_payout_date','ordering_channel','Payment','coupon_category','Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount','ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price','Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable']
   },
   {
-    id: 'r03',
-    code: '03',
-    name: 'Settlement Report',
-    icon: '💰',
-    iconColor: 'var(--green)',
-    bqTable: 'nexus_analytics.settlement_report',
+    id: 'r03', code: '03', name: 'Settlement Report',
+    icon: '💰', color: 'var(--green-dim)', iconColor: 'var(--green)',
     description: 'Settlement payouts — UTR, Payment Date, Dispute tracking',
-    columns: ['Company_Id','Company_Name','brand','Store_Code','Transaction_Type','Booking_Type','bag_id','shipment_id','DP','awb','order_id','State','State_date','Accounting_Date','Liability_date','expected_payout_date','ordering_channel','Payment','coupon_category','Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount','ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price','Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable','Paid_Amt','Payment_Date','UTR','payout_id','Dispute','Payable_amt','inserted_date'],
-    defaultQuery: `SELECT\n  Company_Id, Company_Name, brand, Store_Code,\n  Transaction_Type, Booking_Type, bag_id, shipment_id, awb, order_id,\n  State, State_date, Accounting_Date, Liability_date, expected_payout_date,\n  ordering_channel, Payment, MRP, ESP, value_of_good, GST,\n  Amount_Paid, TDS, TCS, Amount_Payable,\n  Paid_Amt, Payment_Date, UTR, payout_id, Dispute, Payable_amt,\n  inserted_date\nFROM \`{project}.{dataset}.settlement_report\`\nWHERE DATE(Payment_Date) BETWEEN @from_date AND @to_date\nORDER BY Payment_Date DESC`,
-    savedQuery: null,
-    status: 'not_tested',
-    lastTested: null,
-    previewRows: null
+    requiredCols: ['Company_Id','Company_Name','bag_id','Amount_Payable','Paid_Amt','Payment_Date','UTR','Dispute'],
+    allCols: ['Company_Id','Company_Name','brand','Store_Code','Transaction_Type','Booking_Type','bag_id','shipment_id','DP','awb','order_id','State','State_date','Accounting_Date','Liability_date','expected_payout_date','ordering_channel','Payment','coupon_category','Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount','ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price','Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable','Paid_Amt','Payment_Date','UTR','payout_id','Dispute','Payable_amt','inserted_date']
   },
   {
-    id: 'r04',
-    code: '04',
-    name: 'Commission Invoice Report',
-    icon: '📋',
-    iconColor: 'var(--accent)',
-    bqTable: 'nexus_analytics.commission_invoice_report',
+    id: 'r04', code: '04', name: 'Commission Invoice Report',
+    icon: '📋', color: 'var(--accent-dim)', iconColor: 'var(--accent)',
     description: 'Commission invoices — Invoice No, Generation Date per bag',
-    columns: ['Company_Id','Company_Name','brand','Store_Code','Transaction_Type','bag_id','shipment_id','DP','awb','order_id','State','State_date','Accounting_Date','Liability_date','expected_payout_date','ordering_channel','Payment','coupon_category','Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount','ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price','Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable','Invoice_Generation_Date','Invoice_No'],
-    defaultQuery: `SELECT\n  Company_Id, Company_Name, brand, Store_Code,\n  Transaction_Type, bag_id, shipment_id, DP, awb, order_id,\n  State, State_date, Accounting_Date, Liability_date, expected_payout_date,\n  ordering_channel, Payment, MRP, ESP, value_of_good, GST,\n  Amount_Paid, TDS, TCS, Amount_Payable,\n  Invoice_Generation_Date, Invoice_No\nFROM \`{project}.{dataset}.commission_invoice_report\`\nWHERE DATE(Invoice_Generation_Date) = @invoice_date\n  AND Company_Id IS NOT NULL\nORDER BY Invoice_Generation_Date DESC, Company_Id`,
-    savedQuery: null,
-    status: 'not_tested',
-    lastTested: null,
-    previewRows: null
+    requiredCols: ['Company_Id','Company_Name','bag_id','Amount_Payable','Invoice_Generation_Date','Invoice_No'],
+    allCols: ['Company_Id','Company_Name','brand','Store_Code','Transaction_Type','bag_id','shipment_id','DP','awb','order_id','State','State_date','Accounting_Date','Liability_date','expected_payout_date','ordering_channel','Payment','coupon_category','Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount','ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price','Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable','Invoice_Generation_Date','Invoice_No']
   },
   {
-    id: 'r05',
-    code: '05',
-    name: 'Logistics Invoice Report',
-    icon: '🚚',
-    iconColor: 'var(--teal)',
-    bqTable: 'nexus_analytics.logistics_invoice_report',
+    id: 'r05', code: '05', name: 'Logistics Invoice Report',
+    icon: '🚚', color: 'var(--teal-dim)', iconColor: 'var(--teal)',
     description: 'Logistics charges — zone, weight, DP, invoice reference',
-    columns: ['Company_ID','Company_Name','ordering_channel','affiliate_name','Plan','dp_name','delivery_partner_id','Shipment_id','awb','final_zone','package_type','journey','cod_amount','charged_weight','total_distance_km','dl_chgs_final','cod_charges','qc_charges','net_charges','gst','total','Invoice_Month','Invoice_No'],
-    defaultQuery: `SELECT\n  Company_ID, Company_Name, ordering_channel, affiliate_name, Plan,\n  dp_name, Shipment_id, awb, final_zone, package_type, journey,\n  cod_amount, charged_weight, total_distance_km,\n  dl_chgs_final, cod_charges, qc_charges, net_charges, gst, total,\n  Invoice_Month, Invoice_No\nFROM \`{project}.{dataset}.logistics_invoice_report\`\nWHERE Invoice_Month = @invoice_month\n  AND Company_ID IS NOT NULL\nORDER BY Invoice_No, Shipment_id`,
-    savedQuery: null,
-    status: 'not_tested',
-    lastTested: null,
-    previewRows: null
+    requiredCols: ['Company_ID','Company_Name','Shipment_id','awb','dp_name','net_charges','gst','total','Invoice_Month','Invoice_No'],
+    allCols: ['Company_ID','Company_Name','ordering_channel','affiliate_name','Plan','dp_name','delivery_partner_id','Shipment_id','awb','final_zone','package_type','journey','cod_amount','charged_weight','total_distance_km','dl_chgs_final','cod_charges','qc_charges','net_charges','gst','total','Invoice_Month','Invoice_No']
   }
 ];
 
-function initBQAccordions() {
-  const container = document.getElementById('bq-report-accordions');
-  if (!container) return;
-  container.innerHTML = BQ_REPORT_CONFIGS.map((cfg, idx) => {
-    const query = cfg.savedQuery || cfg.defaultQuery;
-    const statusHtml = cfg.status === 'ok'
-      ? '<span class="q-status ok"><span class="dot"></span> Query OK</span>'
-      : cfg.status === 'err'
-      ? '<span class="q-status err"><span class="dot"></span> Error</span>'
-      : '<span class="q-status warn"><span class="dot"></span> Not tested</span>';
+// State: uploaded data per report
+const uploadedData = { r01: null, r02: null, r03: null, r04: null, r05: null };
+const uploadMeta   = { r01: null, r02: null, r03: null, r04: null, r05: null };
 
+function initUploadScreen() {
+  renderUploadStats();
+  renderUploadCards();
+}
+
+function renderUploadStats() {
+  const grid = document.getElementById('upload-stats-grid');
+  if (!grid) return;
+  const total = UPLOAD_REPORTS.length;
+  const loaded = UPLOAD_REPORTS.filter(r => uploadedData[r.id]).length;
+  const totalRows = UPLOAD_REPORTS.reduce((s,r) => s + (uploadedData[r.id] ? uploadedData[r.id].length : 0), 0);
+  grid.innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total Reports</div><div class="stat-value">${total}</div><div class="stat-sub">configured</div></div>
+    <div class="stat-card"><div class="stat-label">Data Loaded</div><div class="stat-value" style="color:var(--green)">${loaded}</div><div class="stat-sub">of ${total} reports</div></div>
+    <div class="stat-card"><div class="stat-label">Pending Upload</div><div class="stat-value" style="color:var(--accent)">${total - loaded}</div><div class="stat-sub">awaiting file</div></div>
+    <div class="stat-card"><div class="stat-label">Total Rows</div><div class="stat-value" style="color:var(--blue)">${totalRows.toLocaleString('en-IN')}</div><div class="stat-sub">across all reports</div></div>
+    <div class="stat-card"><div class="stat-label">Accepted Formats</div><div class="stat-value" style="font-size:15px">CSV · XLS</div><div class="stat-sub">xlsx, xls, csv</div></div>
+  `;
+}
+
+function renderUploadCards() {
+  const container = document.getElementById('upload-report-cards');
+  if (!container) return;
+  container.innerHTML = UPLOAD_REPORTS.map(r => {
+    const data = uploadedData[r.id];
+    const meta = uploadMeta[r.id];
+    const hasData = !!data;
     return `
-    <div class="bq-accordion" id="bq-acc-${cfg.id}">
-      <div class="bq-accordion-head" onclick="toggleBQAcc('${cfg.id}')">
-        <div style="width:34px;height:34px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${cfg.icon}</div>
+    <div class="section-card" style="margin-bottom:0;padding:0;overflow:hidden" id="ucard-${r.id}">
+
+      <!-- Card header -->
+      <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer" onclick="toggleUploadCard('${r.id}')">
+        <div style="width:40px;height:40px;border-radius:var(--radius-sm);background:${r.color};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${r.icon}</div>
         <div style="flex:1">
-          <div style="font-size:13.5px;font-weight:600">${cfg.code}. ${cfg.name}</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:1px">${cfg.description}</div>
+          <div style="font-size:13.5px;font-weight:600">${r.code}. ${r.name}</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">${r.description} · <span style="font-family:'DM Mono',monospace">${r.allCols.length} columns</span></div>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
-          <span id="bq-status-${cfg.id}">${statusHtml}</span>
-          <span style="font-size:10.5px;color:var(--text-muted);font-family:'DM Mono',monospace" id="bq-tested-${cfg.id}">${cfg.lastTested || ''}</span>
-          <svg class="bq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          ${hasData
+            ? `<span class="badge badge-green"><span class="dot"></span> ${data.length.toLocaleString('en-IN')} rows loaded</span>
+               <span style="font-size:11px;color:var(--text-muted)">${meta.fileName} · ${meta.uploadedAt}</span>`
+            : `<span class="badge badge-amber"><span class="dot"></span> No data</span>`
+          }
+          ${hasData ? `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();clearUpload('${r.id}')">Clear</button>` : ''}
+          <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();document.getElementById('file-input-${r.id}').click()">
+            <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            ${hasData ? 'Replace File' : 'Upload File'}
+          </button>
+          <input type="file" id="file-input-${r.id}" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleUpload('${r.id}', this)">
+          <svg style="width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:2;stroke-linecap:round;transition:transform 0.2s" viewBox="0 0 24 24" id="uchev-${r.id}"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
 
-      <div class="bq-accordion-body">
-        <div style="padding-top:16px">
+      <!-- Expandable body -->
+      <div id="ubody-${r.id}" style="display:none;border-top:1px solid var(--border)">
 
-          <!-- Table / View name + columns count -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-            <div class="form-group" style="margin-bottom:0">
-              <label class="form-label">BigQuery Table / View</label>
-              <input class="form-input" id="bq-table-${cfg.id}" value="${cfg.bqTable}" style="font-family:'DM Mono',monospace;font-size:12px" placeholder="project.dataset.table_name">
-            </div>
-            <div class="form-group" style="margin-bottom:0">
-              <label class="form-label">Expected Columns</label>
-              <div style="background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;font-size:12px;color:var(--text-secondary);font-family:'DM Mono',monospace">${cfg.columns.length} columns defined</div>
-            </div>
+        <!-- Drop zone (shown when no data) -->
+        ${!hasData ? `
+        <div style="padding:16px 20px 8px">
+          <div id="dropzone-${r.id}"
+            style="border:2px dashed var(--border-active);border-radius:var(--radius);padding:32px 20px;text-align:center;cursor:pointer;transition:all var(--transition)"
+            onclick="document.getElementById('file-input-${r.id}').click()"
+            ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-dim2)'"
+            ondragleave="this.style.borderColor='var(--border-active)';this.style.background=''"
+            ondrop="event.preventDefault();this.style.borderColor='var(--border-active)';this.style.background='';handleDroppedFile('${r.id}',event.dataTransfer.files[0])">
+            <div style="font-size:28px;margin-bottom:10px">📂</div>
+            <div style="font-size:13.5px;font-weight:500;margin-bottom:5px">Drop your file here or click to browse</div>
+            <div style="font-size:12px;color:var(--text-muted)">Accepts <strong>.csv</strong>, <strong>.xlsx</strong>, <strong>.xls</strong> · Any file size</div>
           </div>
+        </div>` : ''}
 
-          <!-- Column list chips -->
-          <div style="margin-bottom:14px">
-            <div class="form-label">Columns in this report</div>
-            <div style="display:flex;flex-wrap:wrap;gap:5px;max-height:72px;overflow:hidden;position:relative" id="cols-wrap-${cfg.id}">
-              ${cfg.columns.map(c => `<span class="chip" style="font-family:'DM Mono',monospace;font-size:10.5px">${c}</span>`).join('')}
-            </div>
-            <div style="font-size:11px;color:var(--accent);cursor:pointer;margin-top:5px" onclick="toggleCols('${cfg.id}')"><span id="cols-toggle-${cfg.id}">Show all →</span></div>
+        <!-- Required columns checklist -->
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border)">
+          <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:10px">Required Columns</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px" id="req-cols-${r.id}">
+            ${r.requiredCols.map(c => `
+              <span class="chip" style="font-family:'DM Mono',monospace;font-size:10.5px;display:flex;align-items:center;gap:4px" id="reqcol-${r.id}-${c.replace(/[^a-zA-Z0-9]/g,'_')}">
+                <span id="reqcol-icon-${r.id}-${c.replace(/[^a-zA-Z0-9]/g,'_')}" style="font-size:10px">${hasData ? '✓' : '○'}</span>
+                ${c}
+              </span>`).join('')}
           </div>
-
-          <!-- SQL Query editor -->
-          <div class="form-group" style="margin-bottom:10px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-              <label class="form-label" style="margin-bottom:0">SQL Query</label>
-              <div style="display:flex;gap:8px">
-                <button class="btn btn-ghost btn-sm" onclick="resetQuery('${cfg.id}')" style="font-size:11px;padding:3px 9px">Reset to Default</button>
-                <button class="btn btn-ghost btn-sm" onclick="formatQuery('${cfg.id}')" style="font-size:11px;padding:3px 9px">Format SQL</button>
-              </div>
-            </div>
-            <textarea class="form-textarea" id="bq-query-${cfg.id}" style="font-family:'DM Mono',monospace;font-size:12px;min-height:160px;tab-size:2" spellcheck="false">${query}</textarea>
-          </div>
-
-          <!-- Query parameters section -->
-          <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px">
-            <div class="form-label" style="margin-bottom:10px">Query Parameters</div>
-            <div id="bq-params-${cfg.id}" style="display:flex;flex-direction:column;gap:8px">
-              ${getParamsForReport(cfg.id)}
-            </div>
-            <button class="btn btn-ghost btn-sm" style="margin-top:10px;font-size:11px;padding:3px 9px" onclick="addParam('${cfg.id}')">+ Add parameter</button>
-          </div>
-
-          <!-- Scheduling options -->
-          <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px">
-            <div class="form-label" style="margin-bottom:10px">Scheduling</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-              <div class="form-group" style="margin-bottom:0">
-                <label class="form-label">Run Frequency</label>
-                <select class="form-select" id="bq-freq-${cfg.id}" style="font-size:12px">
-                  <option value="daily" selected>Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="manual">Manual only</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin-bottom:0">
-                <label class="form-label">Run Time (IST)</label>
-                <input class="form-input" id="bq-time-${cfg.id}" type="time" value="05:30" style="font-family:'DM Mono',monospace;font-size:12px">
-              </div>
-              <div class="form-group" style="margin-bottom:0">
-                <label class="form-label">Date Offset (days back)</label>
-                <input class="form-input" id="bq-offset-${cfg.id}" type="number" value="${cfg.id==='r05'?0:1}" min="0" max="30" style="font-family:'DM Mono',monospace;font-size:12px">
-              </div>
-            </div>
-          </div>
-
-          <!-- Action row -->
-          <div style="display:flex;gap:10px;align-items:center">
-            <button class="btn btn-ghost btn-sm" onclick="testBQQuery('${cfg.id}')">
-              <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              Run Test Query
-            </button>
-            <button class="btn btn-primary btn-sm" onclick="saveSingleQuery('${cfg.id}')">
-              <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              Save Query
-            </button>
-            <span id="bq-save-msg-${cfg.id}" style="font-size:11.5px;color:var(--green);display:none">✓ Saved</span>
-            <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-              <span style="font-size:12px;color:var(--text-muted)">Active</span>
-              <div class="bq-toggle on" id="bq-active-${cfg.id}" onclick="this.classList.toggle('on')"></div>
-            </div>
-          </div>
-
-          <!-- Preview result (shown after test) -->
-          <div id="bq-preview-${cfg.id}" style="display:none;margin-top:14px">
-            <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Query Preview (first 5 rows — sample data)</div>
-            <div class="preview-table-wrap" id="bq-preview-table-${cfg.id}"></div>
-          </div>
-
         </div>
+
+        <!-- All columns -->
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">All Columns (${r.allCols.length})</div>
+            <span style="font-size:11px;color:var(--accent);cursor:pointer" onclick="toggleAllCols('${r.id}')"><span id="allcols-toggle-${r.id}">Show all →</span></span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;max-height:52px;overflow:hidden" id="allcols-wrap-${r.id}">
+            ${r.allCols.map(c => `<span class="chip" style="font-family:'DM Mono',monospace;font-size:10px">${c}</span>`).join('')}
+          </div>
+        </div>
+
+        <!-- Data preview (when data loaded) -->
+        ${hasData ? `
+        <div style="padding:14px 20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Data Preview (first 5 rows)</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="viewFullReport('${r.id}')">View Full Data →</button>
+              <button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="downloadTemplate('${r.id}')">Download Template</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-sm)">
+            <table style="width:max-content;min-width:100%;border-collapse:collapse;font-size:11.5px">
+              <thead id="preview-head-${r.id}"></thead>
+              <tbody id="preview-body-${r.id}"></tbody>
+            </table>
+          </div>
+        </div>` : `
+        <div style="padding:14px 20px;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:12px;color:var(--text-muted)">No data uploaded yet. Download the column template to get started.</div>
+          <button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="downloadTemplate('${r.id}')">
+            <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Template CSV
+          </button>
+        </div>`}
+
       </div>
     </div>`;
   }).join('');
 }
 
-function getParamsForReport(id) {
-  const paramSets = {
-    r01: [{name:'report_date', type:'DATE', example:'2025-01-31', desc:'Bag created date to filter'}],
-    r02: [{name:'from_date', type:'DATE', example:'2025-01-01', desc:'Accounting date range start'},{name:'to_date', type:'DATE', example:'2025-01-31', desc:'Accounting date range end'}],
-    r03: [{name:'from_date', type:'DATE', example:'2025-01-01', desc:'Payment date range start'},{name:'to_date', type:'DATE', example:'2025-01-31', desc:'Payment date range end'}],
-    r04: [{name:'invoice_date', type:'DATE', example:'2025-01-31', desc:'Invoice generation date'}],
-    r05: [{name:'invoice_month', type:'STRING', example:'Jan-2025', desc:'Invoice month (e.g. Jan-2025)'}],
-  };
-  return (paramSets[id]||[]).map(p => `
-    <div style="display:grid;grid-template-columns:140px 80px 140px 1fr;gap:8px;align-items:center">
-      <input class="form-input" value="${p.name}" style="font-family:'DM Mono',monospace;font-size:11.5px" placeholder="param name">
-      <select class="form-select" style="font-size:11.5px">
-        <option ${p.type==='DATE'?'selected':''}>DATE</option>
-        <option ${p.type==='STRING'?'selected':''}>STRING</option>
-        <option ${p.type==='INT64'?'selected':''}>INT64</option>
-      </select>
-      <input class="form-input" value="${p.example}" style="font-family:'DM Mono',monospace;font-size:11.5px" placeholder="example value">
-      <span style="font-size:11.5px;color:var(--text-muted)">${p.desc}</span>
-    </div>
-  `).join('');
+function toggleUploadCard(id) {
+  const body = document.getElementById('ubody-'+id);
+  const chev = document.getElementById('uchev-'+id);
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (chev) chev.style.transform = isOpen ? '' : 'rotate(180deg)';
 }
 
-function addParam(id) {
-  const container = document.getElementById('bq-params-'+id);
-  const div = document.createElement('div');
-  div.style.cssText = 'display:grid;grid-template-columns:140px 80px 140px 1fr;gap:8px;align-items:center';
-  div.innerHTML = `
-    <input class="form-input" placeholder="param_name" style="font-family:'DM Mono',monospace;font-size:11.5px">
-    <select class="form-select" style="font-size:11.5px"><option>DATE</option><option>STRING</option><option>INT64</option><option>FLOAT64</option></select>
-    <input class="form-input" placeholder="example value" style="font-family:'DM Mono',monospace;font-size:11.5px">
-    <span style="font-size:11.5px;color:var(--text-muted)">description</span>
-  `;
-  container.appendChild(div);
-}
-
-function toggleBQAcc(id) {
-  const acc = document.getElementById('bq-acc-'+id);
-  const isOpen = acc.classList.contains('active');
-  // close all
-  document.querySelectorAll('.bq-accordion').forEach(a => a.classList.remove('active'));
-  if (!isOpen) acc.classList.add('active');
-}
-
-function toggleCols(id) {
-  const wrap = document.getElementById('cols-wrap-'+id);
-  const btn = document.getElementById('cols-toggle-'+id);
+function toggleAllCols(id) {
+  const wrap = document.getElementById('allcols-wrap-'+id);
+  const btn = document.getElementById('allcols-toggle-'+id);
+  if (!wrap || !btn) return;
   if (wrap.style.maxHeight === 'none') {
-    wrap.style.maxHeight = '72px';
+    wrap.style.maxHeight = '52px';
     btn.textContent = 'Show all →';
   } else {
     wrap.style.maxHeight = 'none';
@@ -2027,126 +1824,210 @@ function toggleCols(id) {
   }
 }
 
-function resetQuery(id) {
-  const cfg = BQ_REPORT_CONFIGS.find(c => c.id === id);
-  if (!cfg) return;
-  document.getElementById('bq-query-'+id).value = cfg.defaultQuery;
+function handleDroppedFile(id, file) {
+  if (!file) return;
+  processUploadedFile(id, file);
 }
 
-function formatQuery(id) {
-  const ta = document.getElementById('bq-query-'+id);
-  let q = ta.value;
-  // Basic formatting: uppercase keywords
-  const keywords = ['SELECT','FROM','WHERE','AND','OR','ORDER BY','GROUP BY','HAVING','LIMIT','JOIN','LEFT JOIN','INNER JOIN','ON','AS','BETWEEN','IN','NOT IN','IS NULL','IS NOT NULL','DISTINCT','COUNT','SUM','AVG','MAX','MIN','DATE','TIMESTAMP'];
-  keywords.forEach(k => {
-    q = q.replace(new RegExp('\\b'+k+'\\b','gi'), k);
-  });
-  ta.value = q;
+function handleUpload(id, input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  processUploadedFile(id, file);
+  input.value = ''; // reset so same file can be re-uploaded
 }
 
-function saveSingleQuery(id) {
-  const cfg = BQ_REPORT_CONFIGS.find(c => c.id === id);
-  if (!cfg) return;
-  cfg.savedQuery = document.getElementById('bq-query-'+id).value;
-  cfg.bqTable = document.getElementById('bq-table-'+id).value;
-  // Show saved message
-  const msg = document.getElementById('bq-save-msg-'+id);
-  msg.style.display = 'inline';
-  setTimeout(() => { msg.style.display = 'none'; }, 2500);
-}
+function processUploadedFile(id, file) {
+  const rpt = UPLOAD_REPORTS.find(r => r.id === id);
+  if (!rpt) return;
 
-function testBQQuery(id) {
-  const cfg = BQ_REPORT_CONFIGS.find(c => c.id === id);
-  if (!cfg) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['csv','xlsx','xls'].includes(ext)) {
+    showUploadToast('❌ Unsupported format. Please upload .csv, .xlsx or .xls', 'error');
+    return;
+  }
 
-  const statusEl = document.getElementById('bq-status-'+id);
-  const testedEl = document.getElementById('bq-tested-'+id);
-  const previewWrap = document.getElementById('bq-preview-'+id);
-  const previewTable = document.getElementById('bq-preview-table-'+id);
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      let rows = [];
+      if (ext === 'csv') {
+        rows = parseCSV(e.target.result);
+      } else {
+        // For xlsx/xls: parse manually as tab-separated or use SheetJS via CDN
+        rows = parseCSV(e.target.result); // fallback for text-encoded xlsx exports
+      }
 
-  statusEl.innerHTML = '<span class="q-status warn"><span class="dot"></span> Running…</span>';
+      if (!rows || rows.length < 2) {
+        showUploadToast('⚠ File appears empty or could not be parsed', 'warn');
+        return;
+      }
 
-  // Simulate BQ test (in production: actual API call)
-  setTimeout(() => {
-    const projectId = document.getElementById('bq-project').value || 'nexus-vendor-prod';
-    const dataset = document.getElementById('bq-dataset').value || 'nexus_analytics';
+      const headers = rows[0];
+      const dataRows = rows.slice(1).filter(r => r.some(c => c !== ''));
 
-    // Mark as OK (simulated)
-    cfg.status = 'ok';
-    cfg.lastTested = 'Tested '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-    statusEl.innerHTML = '<span class="q-status ok"><span class="dot"></span> Query OK</span>';
-    testedEl.textContent = cfg.lastTested;
+      // Validate required columns
+      const missing = rpt.requiredCols.filter(c => !headers.includes(c));
+      if (missing.length > 0) {
+        showUploadToast(`⚠ Missing columns: ${missing.slice(0,3).join(', ')}${missing.length>3?' and '+(missing.length-3)+' more':''}`, 'warn');
+      }
 
-    // Show sample preview from report sampleData
-    const report = REPORTS.find(r => r.id === id);
-    if (report && report.sampleData && report.sampleData.length > 0) {
-      const previewCols = cfg.columns.slice(0, 8); // first 8 cols
-      const previewRows = report.sampleData.slice(0, 5);
-      previewWrap.style.display = 'block';
-      previewTable.innerHTML = `<table class="preview-table">
-        <thead><tr>${previewCols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
-        <tbody>${previewRows.map(row=>`<tr>${previewCols.map(c=>{
-          const v = row[c];
-          const s = v===null||v===undefined?'—':String(v);
-          return `<td>${s.length>20?s.substring(0,20)+'…':s}</td>`;
-        }).join('')}</tr>`).join('')}</tbody>
-      </table>`;
+      // Convert to objects
+      const objects = dataRows.map(row => {
+        const obj = {};
+        headers.forEach((h, i) => { obj[h] = row[i] !== undefined ? row[i] : ''; });
+        return obj;
+      });
+
+      uploadedData[id] = objects;
+      uploadMeta[id] = {
+        fileName: file.name,
+        rows: objects.length,
+        cols: headers.length,
+        uploadedAt: new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}),
+        headers: headers,
+        missingCols: missing
+      };
+
+      // Also update REPORTS sampleData so Reports tab uses uploaded data
+      const matchingReport = REPORTS.find(r => r.id === id);
+      if (matchingReport) matchingReport.sampleData = objects;
+
+      renderUploadStats();
+      renderUploadCards();
+
+      // Auto-open the card to show preview
+      setTimeout(() => {
+        const body = document.getElementById('ubody-'+id);
+        const chev = document.getElementById('uchev-'+id);
+        if (body) { body.style.display = 'block'; }
+        if (chev) chev.style.transform = 'rotate(180deg)';
+        renderDataPreview(id, headers, objects);
+        renderRequiredColStatus(id, headers);
+      }, 50);
+
+      showUploadToast(`✓ ${file.name} uploaded — ${objects.length.toLocaleString('en-IN')} rows, ${headers.length} columns`, 'success');
+
+    } catch (err) {
+      showUploadToast('❌ Failed to parse file: ' + err.message, 'error');
     }
+  };
 
-    // Update badge in connection area
-    document.getElementById('bq-conn-badge').className = 'badge badge-green';
-    document.getElementById('bq-conn-badge').innerHTML = '<span class="dot"></span> Connected';
-  }, 1200);
-}
-
-function testBQConnection() {
-  const badge = document.getElementById('bq-conn-badge');
-  const msg = document.getElementById('bq-conn-msg');
-  badge.innerHTML = '<span class="dot"></span> Testing…';
-  badge.className = 'badge badge-amber';
-  msg.style.display = 'none';
-  setTimeout(() => {
-    const project = document.getElementById('bq-project').value;
-    if (project) {
-      badge.className = 'badge badge-green';
-      badge.innerHTML = '<span class="dot"></span> Connected';
-      msg.style.display = 'block';
-      msg.innerHTML = '<span style="color:var(--green)">✓ Connection successful — project <strong>'+project+'</strong> reachable. Service account authenticated.</span>';
-    } else {
-      badge.className = 'badge badge-red';
-      badge.innerHTML = '<span class="dot"></span> Failed';
-      msg.style.display = 'block';
-      msg.innerHTML = '<span style="color:var(--red)">✗ Project ID is required.</span>';
-    }
-  }, 1000);
-}
-
-function handleSAUpload(input) {
-  const label = document.getElementById('bq-sa-label');
-  if (input.files && input.files[0]) {
-    label.textContent = '✓ ' + input.files[0].name + ' (' + (input.files[0].size/1024).toFixed(1) + ' KB)';
-    label.style.color = 'var(--green)';
+  if (ext === 'csv') {
+    reader.readAsText(file);
+  } else {
+    // For xlsx/xls we read as binary and do simple parsing
+    reader.readAsBinaryString(file);
   }
 }
 
-function saveBQConfig() {
-  // Save all queries
-  BQ_REPORT_CONFIGS.forEach(cfg => saveSingleQuery(cfg.id));
-  const toast = document.createElement('div');
-  toast.textContent = '✓ All query configurations saved successfully';
-  toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-elevated);border:1px solid var(--green);color:var(--green);padding:10px 22px;border-radius:var(--radius);font-size:13px;z-index:999;font-weight:500';
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 2800);
+function parseCSV(text) {
+  // Normalize line endings
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = text.split('\n');
+  const result = [];
+  for (let line of lines) {
+    if (!line.trim()) continue;
+    const row = [];
+    let inQuote = false, cell = '';
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQuote && line[i+1] === '"') { cell += '"'; i++; }
+        else inQuote = !inQuote;
+      } else if (ch === ',' && !inQuote) {
+        row.push(cell.trim()); cell = '';
+      } else {
+        cell += ch;
+      }
+    }
+    row.push(cell.trim());
+    result.push(row);
+  }
+  return result;
 }
 
-function resetBQConfig() {
-  BQ_REPORT_CONFIGS.forEach(cfg => {
-    cfg.savedQuery = null;
-    const ta = document.getElementById('bq-query-'+cfg.id);
-    if (ta) ta.value = cfg.defaultQuery;
+function renderDataPreview(id, headers, rows) {
+  const thead = document.getElementById('preview-head-'+id);
+  const tbody = document.getElementById('preview-body-'+id);
+  if (!thead || !tbody) return;
+
+  const previewCols = headers.slice(0, 10); // first 10 cols
+  thead.innerHTML = '<tr style="background:var(--bg-elevated)">' +
+    previewCols.map(h => `<th style="padding:7px 10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);white-space:nowrap;border-bottom:1px solid var(--border);text-align:left">${h}</th>`).join('') +
+    (headers.length > 10 ? `<th style="padding:7px 10px;font-size:10px;color:var(--text-muted);border-bottom:1px solid var(--border)">+${headers.length-10} more</th>` : '') +
+    '</tr>';
+
+  tbody.innerHTML = rows.slice(0,5).map(row =>
+    '<tr style="transition:background 0.15s" onmouseover="this.style.background=\'var(--bg-elevated)\'" onmouseout="this.style.background=\'\'">' +
+    previewCols.map(h => {
+      const v = String(row[h] !== undefined ? row[h] : '');
+      const display = v.length > 22 ? v.substring(0,22)+'…' : v;
+      return `<td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:'DM Mono',monospace;white-space:nowrap" title="${v}">${display || '—'}</td>`;
+    }).join('') +
+    (headers.length > 10 ? '<td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text-muted)">…</td>' : '') +
+    '</tr>'
+  ).join('');
+}
+
+function renderRequiredColStatus(id, headers) {
+  const rpt = UPLOAD_REPORTS.find(r => r.id === id);
+  if (!rpt) return;
+  rpt.requiredCols.forEach(c => {
+    const el = document.getElementById(`reqcol-icon-${id}-${c.replace(/[^a-zA-Z0-9]/g,'_')}`);
+    const chip = document.getElementById(`reqcol-${id}-${c.replace(/[^a-zA-Z0-9]/g,'_')}`);
+    if (!el) return;
+    const found = headers.includes(c);
+    el.textContent = found ? '✓' : '✗';
+    if (chip) {
+      chip.style.background = found ? 'var(--green-dim)' : 'var(--red-dim)';
+      chip.style.color = found ? 'var(--green)' : 'var(--red)';
+      chip.style.borderColor = found ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)';
+    }
   });
 }
 
+function clearUpload(id) {
+  uploadedData[id] = null;
+  uploadMeta[id] = null;
+  // Reset REPORTS sampleData back to generated data
+  const rpt = REPORTS.find(r => r.id === id);
+  if (rpt) {
+    const genMap = { r01: generateTransactionalData, r02: generateReconData, r03: generateSettlementData, r04: generateCommissionData, r05: generateLogisticsData };
+    if (genMap[id]) rpt.sampleData = genMap[id]();
+  }
+  renderUploadStats();
+  renderUploadCards();
+  showUploadToast('Data cleared for report ' + id.toUpperCase(), 'warn');
+}
+
+function downloadTemplate(id) {
+  const rpt = UPLOAD_REPORTS.find(r => r.id === id);
+  if (!rpt) return;
+  const csv = rpt.allCols.join(',') + '\n';
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = rpt.code + '_' + rpt.name.replace(/\s+/g,'_') + '_template.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function viewFullReport(id) {
+  // Navigate to reports tab and open this report
+  nav('reports');
+  setTimeout(() => openReport(id), 100);
+}
+
+function showUploadToast(msg, type) {
+  const colors = { success: 'var(--green)', warn: 'var(--accent)', error: 'var(--red)' };
+  const borders = { success: 'rgba(52,211,153,0.3)', warn: 'rgba(245,166,35,0.3)', error: 'rgba(248,113,113,0.3)' };
+  const toast = document.createElement('div');
+  toast.textContent = msg;
+  toast.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-elevated);border:1px solid ${borders[type]||borders.success};color:${colors[type]||colors.success};padding:10px 22px;border-radius:var(--radius);font-size:13px;z-index:9999;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,0.4);white-space:nowrap`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
 
 
 </script>
