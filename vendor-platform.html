@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VendorFlow — Nexus Vendor Master</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-deep: #0D0F1A; --bg-sidebar: #111320; --bg-card: #181B2E;
+    --bg-card-hover: #1E2238; --bg-elevated: #222640; --bg-input: #1A1D30;
+    --border: rgba(255,255,255,0.07); --border-active: rgba(255,255,255,0.15);
+    --accent: #F5A623; --accent-dim: rgba(245,166,35,0.15); --accent-dim2: rgba(245,166,35,0.06);
+    --blue: #4F8EF7; --blue-dim: rgba(79,142,247,0.13);
+    --green: #34D399; --green-dim: rgba(52,211,153,0.1);
+    --red: #F87171; --red-dim: rgba(248,113,113,0.1);
+    --purple: #A78BFA; --purple-dim: rgba(167,139,250,0.1);
+    --teal: #2DD4BF; --teal-dim: rgba(45,212,191,0.1);
+    --text-primary: #F0F2FF; --text-secondary: #8B90B8; --text-muted: #565A7A;
+    --sidebar-w: 228px; --header-h: 58px; --radius: 10px; --radius-sm: 6px;
+    --transition: 0.16s ease;
+  }
+  html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg-deep); color: var(--text-primary); font-size: 13.5px; line-height: 1.5; overflow: hidden; }
+  #app { display: flex; height: 100vh; }
+
+  /* SIDEBAR */
+  #sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 10; }
+  .logo-area { padding: 16px 18px 13px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .logo-mark { width: 30px; height: 30px; background: linear-gradient(135deg,var(--accent),#E8830A); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-family: 'Sora',sans-serif; font-weight: 700; font-size: 12px; color: #0D0F1A; flex-shrink: 0; }
+  .logo-text { font-family: 'Sora',sans-serif; font-weight: 600; font-size: 14px; }
+  .logo-text span { color: var(--accent); }
+  .logo-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+  .nav-section { padding: 8px 0 3px; }
+  .nav-label { padding: 5px 18px 3px; font-size: 9.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 18px; cursor: pointer; color: var(--text-secondary); font-size: 13px; transition: all var(--transition); border-left: 2px solid transparent; }
+  .nav-item:hover { color: var(--text-primary); background: rgba(255,255,255,0.03); }
+  .nav-item.active { color: var(--accent); background: var(--accent-dim2); border-left-color: var(--accent); }
+  .nav-icon { width: 15px; height: 15px; opacity: 0.7; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .nav-item.active .nav-icon { opacity: 1; }
+  .nav-badge { margin-left: auto; background: var(--red); color: white; font-size: 9.5px; font-weight: 600; padding: 1px 6px; border-radius: 10px; }
+  .nav-badge.amber { background: var(--accent); color: #0D0F1A; }
+  .sidebar-bottom { margin-top: auto; padding: 13px 18px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 9px; }
+  .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg,var(--blue),var(--purple)); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; }
+  .user-name { font-size: 12px; font-weight: 500; }
+  .user-role { font-size: 10.5px; color: var(--text-muted); }
+
+  /* MAIN */
+  #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  #topbar { height: var(--header-h); background: var(--bg-sidebar); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 22px; gap: 14px; flex-shrink: 0; }
+  .page-title { font-family: 'Sora',sans-serif; font-size: 15px; font-weight: 600; flex: 1; }
+  #content { flex: 1; overflow-y: auto; padding: 20px 22px; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 500; font-family: 'DM Sans',sans-serif; cursor: pointer; border: none; transition: all var(--transition); white-space: nowrap; }
+  .btn-primary { background: var(--accent); color: #0D0F1A; }
+  .btn-primary:hover { background: #F0B84E; }
+  .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-active); }
+  .btn-ghost:hover { background: var(--bg-elevated); color: var(--text-primary); }
+  .btn-sm { padding: 5px 11px; font-size: 11.5px; }
+  .btn-xs { padding: 3px 8px; font-size: 11px; }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .stat-label { font-size: 10.5px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .stat-value { font-family: 'Sora',sans-serif; font-size: 26px; font-weight: 600; line-height: 1; }
+  .stat-sub { font-size: 11px; color: var(--text-secondary); margin-top: 5px; }
+
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-red { background: var(--red-dim); color: var(--red); }
+  .badge-amber { background: var(--accent-dim); color: var(--accent); }
+  .badge-blue { background: var(--blue-dim); color: var(--blue); }
+  .badge-purple { background: var(--purple-dim); color: var(--purple); }
+  .badge-teal { background: var(--teal-dim); color: var(--teal); }
+  .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+  /* FILTER BAR */
+  .filter-bar { display: flex; gap: 9px; margin-bottom: 14px; align-items: center; flex-wrap: wrap; }
+  .search-wrap { flex: 1; min-width: 220px; position: relative; }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; stroke: var(--text-muted); fill: none; stroke-width: 2; stroke-linecap: round; }
+  .search-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px 8px 32px; color: var(--text-primary); font-size: 13px; font-family: 'DM Sans',sans-serif; transition: all var(--transition); }
+  .search-input:focus { outline: none; border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text-muted); }
+  .filter-select { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; color: var(--text-secondary); font-size: 12.5px; font-family: 'DM Sans',sans-serif; cursor: pointer; }
+  .filter-select:focus { outline: none; border-color: var(--accent); }
+  .count-pill { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; font-size: 11.5px; color: var(--text-secondary); white-space: nowrap; }
+
+  /* TABLE WRAPPER — HORIZONTAL SCROLL */
+  .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .table-scroll { overflow-x: auto; }
+  .table-scroll::-webkit-scrollbar { height: 5px; }
+  .table-scroll::-webkit-scrollbar-track { background: var(--bg-elevated); }
+  .table-scroll::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 10px; }
+  .data-table { width: max-content; min-width: 100%; border-collapse: collapse; }
+  .data-table th { text-align: left; padding: 9px 13px; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--bg-sidebar); white-space: nowrap; cursor: pointer; user-select: none; }
+  .data-table th:hover { color: var(--text-secondary); }
+  .data-table td { padding: 9px 13px; border-bottom: 1px solid var(--border); font-size: 12.5px; white-space: nowrap; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--bg-elevated); }
+  .data-table tr { cursor: pointer; transition: background var(--transition); }
+  td.mono { font-family: 'DM Mono',monospace; font-size: 11.5px; }
+  td.dim { color: var(--text-muted); }
+
+  /* COLUMN TOGGLE */
+  .col-toggle-wrap { position: relative; }
+  .col-toggle-menu { display: none; position: absolute; top: 36px; right: 0; background: var(--bg-sidebar); border: 1px solid var(--border-active); border-radius: var(--radius); padding: 10px; z-index: 50; width: 220px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+  .col-toggle-menu.open { display: block; }
+  .col-toggle-title { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .col-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 12.5px; cursor: pointer; color: var(--text-secondary); }
+  .col-item:hover { color: var(--text-primary); }
+  .col-check { width: 14px; height: 14px; border-radius: 3px; background: var(--bg-elevated); border: 1px solid var(--border-active); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .col-check.checked { background: var(--accent); border-color: var(--accent); }
+  .col-check.checked::after { content: '✓'; font-size: 9px; color: #0D0F1A; }
+
+  /* PAGINATION */
+  .pagination { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); font-size: 12.5px; }
+  .page-info { color: var(--text-muted); flex: 1; }
+  .page-btn { padding: 4px 10px; border-radius: 4px; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; font-size: 12px; transition: all var(--transition); }
+  .page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .page-btn.active { background: var(--accent); border-color: var(--accent); color: #0D0F1A; font-weight: 600; }
+  .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* VENDOR DETAIL PANEL */
+  #detail-panel { position: fixed; top: 0; right: -600px; width: 580px; height: 100vh; background: var(--bg-sidebar); border-left: 1px solid var(--border-active); z-index: 200; transition: right 0.3s ease; overflow-y: auto; display: flex; flex-direction: column; }
+  #detail-panel.open { right: 0; box-shadow: -20px 0 60px rgba(0,0,0,0.5); }
+  .panel-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; flex-shrink: 0; position: sticky; top: 0; background: var(--bg-sidebar); z-index: 1; }
+  .panel-close { margin-left: auto; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 0 0 8px; }
+  .panel-avatar { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Sora',sans-serif; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .panel-name { font-family: 'Sora',sans-serif; font-size: 15px; font-weight: 600; line-height: 1.2; }
+  .panel-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+  .panel-body { padding: 0; flex: 1; }
+  .panel-section { padding: 14px 20px; border-bottom: 1px solid var(--border); }
+  .panel-section-title { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 12px; }
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+  .field-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .field { }
+  .field-label { font-size: 10.5px; color: var(--text-muted); font-weight: 500; margin-bottom: 3px; }
+  .field-val { font-size: 12.5px; color: var(--text-primary); word-break: break-all; }
+  .field-val.mono { font-family: 'DM Mono',monospace; font-size: 11.5px; }
+  .field-val.email { color: var(--blue); }
+  .field-val.empty { color: var(--text-muted); font-style: italic; }
+  .full-width { grid-column: 1 / -1; }
+
+  /* TABS */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 20px; }
+  .tab { padding: 10px 14px; font-size: 12.5px; font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all var(--transition); }
+  .tab:hover { color: var(--text-primary); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* OVERLAY */
+  #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: none; }
+  #overlay.open { display: block; }
+
+  /* DASHBOARD */
+  .dash-grid { display: grid; grid-template-columns: 1fr 320px; gap: 16px; }
+  .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px; }
+  .section-title { font-family: 'Sora',sans-serif; font-size: 13.5px; font-weight: 600; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+
+  /* DONUT */
+  .donut-wrap { display: flex; align-items: center; gap: 18px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; margin-bottom: 7px; }
+  .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  /* BAR CHART */
+  .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .bar-fill { width: 100%; border-radius: 3px 3px 0 0; }
+  .bar-label { font-size: 9.5px; color: var(--text-muted); }
+
+  /* TIMELINE */
+  .tl-item { display: flex; gap: 10px; margin-bottom: 12px; }
+  .tl-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; }
+  .tl-title { font-size: 12px; font-weight: 500; }
+  .tl-meta { font-size: 10.5px; color: var(--text-muted); }
+
+  /* ALERT */
+  .alert { display: flex; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); margin-bottom: 8px; font-size: 12px; }
+  .alert-warn { background: rgba(245,166,35,0.06); border: 1px solid rgba(245,166,35,0.12); color: var(--text-secondary); }
+  .alert-err { background: var(--red-dim); border: 1px solid rgba(248,113,113,0.12); color: var(--text-secondary); }
+  .alert-info { background: var(--blue-dim); border: 1px solid rgba(79,142,247,0.12); color: var(--text-secondary); }
+  .alert strong { color: var(--text-primary); }
+
+  /* SORT INDICATOR */
+  .sort-asc::after { content: ' ↑'; color: var(--accent); }
+  .sort-desc::after { content: ' ↓'; color: var(--accent); }
+
+  /* BQ TOGGLE */
+  .bq-toggle { width: 36px; height: 20px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; position: relative; cursor: pointer; transition: all var(--transition); flex-shrink:0; }
+  .bq-toggle.on { background: var(--accent); border-color: var(--accent); }
+  .bq-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: white; transition: all var(--transition); }
+  .bq-toggle.on::after { left: 18px; }
+
+  /* FORM */
+  .form-group { margin-bottom: 12px; }
+  .form-label { display: block; font-size: 10.5px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+  .form-input, .form-select, .form-textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; color: var(--text-primary); font-size: 13px; font-family: 'DM Sans', sans-serif; transition: all var(--transition); }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
+  .form-input::placeholder { color: var(--text-muted); }
+  .form-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+  /* ACCORDION */
+  .bq-accordion { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; transition: border-color var(--transition); }
+  .bq-accordion.active { border-color: var(--border-active); }
+  .bq-accordion-head { display: flex; align-items: center; gap: 14px; padding: 14px 18px; cursor: pointer; user-select: none; }
+  .bq-accordion-head:hover { background: var(--bg-elevated); }
+  .bq-accordion-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
+  .bq-accordion.active .bq-accordion-body { display: block; }
+  .bq-chevron { width: 14px; height: 14px; stroke: var(--text-muted); fill: none; stroke-width: 2; stroke-linecap: round; transition: transform var(--transition); margin-left: auto; flex-shrink:0; }
+  .bq-accordion.active .bq-chevron { transform: rotate(180deg); }
+
+  /* QUERY STATUS */
+  .q-status { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 9px; border-radius: 20px; }
+  .q-status.ok { background: var(--green-dim); color: var(--green); }
+  .q-status.warn { background: var(--accent-dim); color: var(--accent); }
+  .q-status.err { background: var(--red-dim); color: var(--red); }
+
+  /* PREVIEW TABLE */
+  .preview-table-wrap { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: auto; max-height: 180px; margin-top: 12px; }
+  .preview-table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .preview-table th { padding: 6px 10px; background: var(--bg-elevated); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.04em; white-space: nowrap; border-bottom: 1px solid var(--border); text-align: left; }
+  .preview-table td { padding: 5px 10px; border-bottom: 1px solid var(--border); color: var(--text-secondary); white-space: nowrap; font-family: 'DM Mono', monospace; }
+  .preview-table tr:last-child td { border-bottom: none; }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 10px; }
+
+  /* CHIP */
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="logo-area">
+      <div class="logo-mark">VF</div>
+      <div><div class="logo-text">Vendor<span>Flow</span></div><div class="logo-sub">Nexus Seawoods Mall</div></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" onclick="nav('dashboard')">
+        <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+        <span class="nav-badge amber">3</span>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Vendors</div>
+      <div class="nav-item" onclick="nav('vendors')">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/></svg>
+        Vendors
+        <span style="margin-left:auto;font-size:10.5px;color:var(--text-muted)">39</span>
+      </div>
+      <div class="nav-item" onclick="nav('docs')">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Documents
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Reporting</div>
+      <div class="nav-item" onclick="nav('reports')">
+        <svg class="nav-icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Reports
+        <span class="nav-badge">2</span>
+      </div>
+      <div class="nav-item" onclick="nav('comms')">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Communications
+      </div>
+      <div class="nav-item" onclick="nav('bigquery')">
+        <svg class="nav-icon" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        BigQuery
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">System</div>
+      <div class="nav-item" onclick="nav('audit')">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Audit Logs
+      </div>
+      <div class="nav-item" onclick="nav('settings')">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </div>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="user-avatar">AR</div>
+      <div><div class="user-name">Aditya R.</div><div class="user-role">Admin</div></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div id="topbar">
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div style="display:flex;gap:9px;align-items:center">
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">
+          <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="nav('vendors')">
+          <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Vendor
+        </button>
+      </div>
+    </div>
+    <div id="content">
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <div id="screen-dashboard" class="screen active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Vendors</div>
+            <div class="stat-value">39</div>
+            <div class="stat-sub">Nexus Seawoods Mall</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Live & Active</div>
+            <div class="stat-value" style="color:var(--green)">38</div>
+            <div class="stat-sub">97.4% active rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Inactive</div>
+            <div class="stat-value" style="color:var(--red)">1</div>
+            <div class="stat-sub">Credo Brands (Mufti)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">TOT Signed</div>
+            <div class="stat-value" style="color:var(--blue)">39</div>
+            <div class="stat-sub">100% signed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Agreement Pending</div>
+            <div class="stat-value" style="color:var(--accent)">38</div>
+            <div class="stat-sub">1 signed (Columbia)</div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div>
+            <div class="section-card">
+              <div class="section-header">
+                <div class="section-title">Commission Models</div>
+                <span style="font-size:11.5px;color:var(--text-muted)">by vendor count</span>
+              </div>
+              <div style="display:flex;gap:24px;align-items:center">
+                <svg width="90" height="90" viewBox="0 0 90 90">
+                  <circle cx="45" cy="45" r="34" fill="none" stroke="var(--bg-elevated)" stroke-width="14"/>
+                  <circle cx="45" cy="45" r="34" fill="none" stroke="#4F8EF7" stroke-width="14" stroke-dasharray="107 106" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
+                  <circle cx="45" cy="45" r="34" fill="none" stroke="#F5A623" stroke-width="14" stroke-dasharray="71 142" stroke-dashoffset="-107" transform="rotate(-90 45 45)"/>
+                  <circle cx="45" cy="45" r="34" fill="none" stroke="#A78BFA" stroke-width="14" stroke-dasharray="35 178" stroke-dashoffset="-178" transform="rotate(-90 45 45)"/>
+                  <text x="45" y="49" text-anchor="middle" fill="var(--text-primary)" font-size="12" font-family="Sora" font-weight="600">39</text>
+                </svg>
+                <div style="flex:1">
+                  <div class="legend-item"><div class="legend-dot" style="background:#4F8EF7"></div>Cost + Model <strong style="margin-left:auto">20</strong></div>
+                  <div class="legend-item"><div class="legend-dot" style="background:#F5A623"></div>Blended Model <strong style="margin-left:auto">13</strong></div>
+                  <div class="legend-item"><div class="legend-dot" style="background:#A78BFA"></div>Not Configured <strong style="margin-left:auto">6</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-header">
+                <div class="section-title">Commission Rate Distribution</div>
+              </div>
+              <div class="bar-chart">
+                <div class="bar-col"><div class="bar-fill" style="height:40%;background:var(--blue);opacity:0.8"></div><div class="bar-label">12%</div><div class="bar-label" style="color:var(--text-secondary)">2</div></div>
+                <div class="bar-col"><div class="bar-fill" style="height:50%;background:var(--blue);opacity:0.8"></div><div class="bar-label">14%</div><div class="bar-label" style="color:var(--text-secondary)">3</div></div>
+                <div class="bar-col"><div class="bar-fill" style="height:70%;background:var(--blue);opacity:0.8"></div><div class="bar-label">15%</div><div class="bar-label" style="color:var(--text-secondary)">5</div></div>
+                <div class="bar-col"><div class="bar-fill" style="height:100%;background:var(--accent);opacity:0.9"></div><div class="bar-label">16%</div><div class="bar-label" style="color:var(--accent);font-weight:600">12</div></div>
+                <div class="bar-col"><div class="bar-fill" style="height:55%;background:var(--blue);opacity:0.8"></div><div class="bar-label">18%</div><div class="bar-label" style="color:var(--text-secondary)">4</div></div>
+                <div class="bar-col"><div class="bar-fill" style="height:30%;background:var(--blue);opacity:0.8"></div><div class="bar-label">19%</div><div class="bar-label" style="color:var(--text-secondary)">1</div></div>
+                <div class="bar-col"><div class="bar-fill" style="height:40%;background:var(--purple);opacity:0.8"></div><div class="bar-label">20%</div><div class="bar-label" style="color:var(--text-secondary)">2</div></div>
+                <div class="bar-col"><div class="bar-fill" style="height:35%;background:var(--purple);opacity:0.8"></div><div class="bar-label">21%</div><div class="bar-label" style="color:var(--text-secondary)">2</div></div>
+                <div class="bar-col"><div class="bar-fill" style="height:20%;background:var(--red);opacity:0.8"></div><div class="bar-label">23%</div><div class="bar-label" style="color:var(--text-secondary)">1</div></div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-header">
+                <div class="section-title">Compliance Gaps</div>
+                <span class="badge badge-amber">Needs attention</span>
+              </div>
+              <div class="alert alert-err"><strong>Agreement Pending:</strong> 38 vendors have agreement status = Pending</div>
+              <div class="alert alert-warn"><strong>No PAN/GST:</strong> 9 vendors missing PAN or GST numbers</div>
+              <div class="alert alert-warn"><strong>No Bank Details:</strong> 12 vendors missing bank account / IFSC</div>
+              <div class="alert alert-warn"><strong>No Commission:</strong> 6 vendors have no model/rate configured</div>
+              <div class="alert alert-info"><strong>1 Inactive:</strong> Credo Brands (Mufti) — CID 3932</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-card">
+              <div class="section-title" style="margin-bottom:13px">PG Charges Summary</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Standard: 2% per transaction</div>
+              <div style="display:flex;flex-direction:column;gap:7px;font-size:12.5px">
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">2% (standard)</span><strong>20</strong></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">NA (blended)</span><strong>13</strong></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">Not set</span><strong style="color:var(--accent)">6</strong></div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-title" style="margin-bottom:13px">SLA Charges</div>
+              <div style="display:flex;flex-direction:column;gap:7px;font-size:12.5px">
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">Flat ₹250 + GST</span><strong>33</strong></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">NA</span><strong>2</strong></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--text-secondary)">Not set</span><strong style="color:var(--accent)">4</strong></div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-title" style="margin-bottom:13px">Recent Updates</div>
+              <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-title">39 vendors imported from Excel</div><div class="tl-meta">Bulk upload · Just now</div></div></div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--blue)"></div><div><div class="tl-title">Columbia Sportswear agreement signed</div><div class="tl-meta">Only vendor with Agreement = Signed</div></div></div>
+              <div class="tl-item"><div class="tl-dot" style="background:var(--red)"></div><div><div class="tl-title">Mufti marked inactive</div><div class="tl-meta">CID 3932 · Credo Brands</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ VENDORS ═══ -->
+      <div id="screen-vendors" class="screen">
+        <div class="filter-bar">
+          <div class="search-wrap">
+            <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" id="search-input" placeholder="Search vendor, brand, CID, email..." oninput="applyFilters()">
+          </div>
+          <select class="filter-select" id="filter-status" onchange="applyFilters()">
+            <option value="">All Status</option>
+            <option value="Live & Active">Live & Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+          <select class="filter-select" id="filter-model" onchange="applyFilters()">
+            <option value="">All Models</option>
+            <option value="Cost + Model">Cost + Model</option>
+            <option value="Blended Model">Blended Model</option>
+          </select>
+          <select class="filter-select" id="filter-agreement" onchange="applyFilters()">
+            <option value="">All Agreements</option>
+            <option value="Signed">Signed</option>
+            <option value="Pending">Pending</option>
+          </select>
+          <span class="count-pill" id="count-pill">39 vendors</span>
+          <div class="col-toggle-wrap">
+            <button class="btn btn-ghost btn-sm" onclick="toggleColMenu()">
+              <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              Columns
+            </button>
+            <div class="col-toggle-menu" id="col-menu"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table" id="vendor-table">
+              <thead id="table-head"></thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <div class="page-info" id="page-info"></div>
+            <div style="display:flex;gap:5px" id="page-btns"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PLACEHOLDER SCREENS ═══ -->
+      <div id="screen-docs" class="screen">
+        <div class="section-card" style="text-align:center;padding:40px">
+          <div style="font-size:28px;margin-bottom:12px">📁</div>
+          <div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:600;margin-bottom:8px">Document Repository</div>
+          <div style="color:var(--text-muted);font-size:13px">Upload KYC, contracts, GST certificates, bank proofs and SLAs for each vendor.</div>
+        </div>
+      </div>
+      <div id="screen-reports" class="screen">
+
+        <!-- BQ CONNECTION BANNER -->
+        <div style="background:rgba(79,142,247,0.06);border:1px solid rgba(79,142,247,0.18);border-radius:var(--radius);padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:12px">
+          <svg style="width:16px;height:16px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;flex-shrink:0" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          <div style="flex:1;font-size:12.5px;color:var(--text-secondary)"><strong style="color:var(--blue)">BigQuery not connected.</strong> Reports below use sample data from your uploaded files. Once you connect BigQuery, data will be fetched live via the configured queries.</div>
+          <button class="btn btn-ghost btn-sm" onclick="nav('bigquery')" style="border-color:rgba(79,142,247,0.3);color:var(--blue)">Connect BigQuery →</button>
+        </div>
+
+        <!-- REPORT CARDS -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px" id="report-cards"></div>
+
+        <!-- ACTIVE REPORT PANEL -->
+        <div id="report-panel" style="display:none">
+          <!-- PANEL HEADER -->
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+            <div id="rp-icon" style="width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0"></div>
+            <div style="flex:1">
+              <div id="rp-title" style="font-family:'Sora',sans-serif;font-size:16px;font-weight:600"></div>
+              <div id="rp-meta" style="font-size:11.5px;color:var(--text-muted);margin-top:2px"></div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span style="font-size:11.5px;color:var(--text-muted)" id="rp-data-source"></span>
+              <button class="btn btn-ghost btn-sm" id="btn-export-csv" onclick="exportReportCSV()">
+                <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export CSV
+              </button>
+              <button class="btn btn-primary btn-sm" id="btn-export-xlsx" onclick="exportReportXLSX()">
+                <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download XLSX
+              </button>
+            </div>
+          </div>
+
+          <!-- FILTERS -->
+          <div class="filter-bar" id="rp-filters">
+            <div class="search-wrap">
+              <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input class="search-input" id="rp-search" placeholder="Search..." oninput="filterReport()">
+            </div>
+            <select class="filter-select" id="rp-vendor-filter" onchange="filterReport()">
+              <option value="">All Vendors</option>
+            </select>
+            <select class="filter-select" id="rp-state-filter" onchange="filterReport()">
+              <option value="">All States</option>
+            </select>
+            <span class="count-pill" id="rp-count">0 rows</span>
+            <div class="col-toggle-wrap">
+              <button class="btn btn-ghost btn-sm" onclick="toggleRpColMenu()">Columns</button>
+              <div class="col-toggle-menu" id="rp-col-menu"></div>
+            </div>
+          </div>
+
+          <!-- BQ QUERY BOX (shown when BQ connected) -->
+          <div id="rp-query-box" style="display:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px">
+            <div style="font-size:10.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">BigQuery Query</div>
+            <pre id="rp-query-text" style="font-family:'DM Mono',monospace;font-size:11.5px;color:var(--text-secondary);margin:0;white-space:pre-wrap;line-height:1.6"></pre>
+          </div>
+
+          <!-- TABLE -->
+          <div class="table-wrap">
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead id="rp-thead"></thead>
+                <tbody id="rp-tbody"></tbody>
+              </table>
+            </div>
+            <div class="pagination">
+              <div class="page-info" id="rp-page-info"></div>
+              <div style="display:flex;gap:5px" id="rp-page-btns"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div id="screen-comms" class="screen">
+        <div class="section-card" style="text-align:center;padding:40px">
+          <div style="font-size:28px;margin-bottom:12px">✉️</div>
+          <div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:600;margin-bottom:8px">Communications</div>
+          <div style="color:var(--text-muted);font-size:13px">Email templates, delivery history, and communication logs per vendor.</div>
+        </div>
+      </div>
+      <div id="screen-bigquery" class="screen">
+
+        <!-- TOP: CONNECTION CONFIG -->
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:16px;margin-bottom:20px">
+
+          <!-- LEFT: GCP credentials -->
+          <div class="section-card" style="margin-bottom:0">
+            <div class="section-header">
+              <div>
+                <div class="section-title">GCP Connection</div>
+                <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">One shared connection used across all report queries</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span id="bq-conn-badge" class="badge badge-red"><span class="dot"></span> Not connected</span>
+                <button class="btn btn-primary btn-sm" onclick="testBQConnection()">Test Connection</button>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">GCP Project ID</label>
+                <input class="form-input" id="bq-project" placeholder="my-gcp-project-prod" value="nexus-vendor-prod">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Default Dataset</label>
+                <input class="form-input" id="bq-dataset" placeholder="vendor_analytics" value="nexus_analytics">
+              </div>
+              <div class="form-group" style="grid-column:1/-1;margin-bottom:0">
+                <label class="form-label">Service Account Key (JSON)</label>
+                <div onclick="document.getElementById('bq-sa-file').click()" style="border:1.5px dashed var(--border-active);border-radius:var(--radius-sm);padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all var(--transition)" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border-active)'">
+                  <svg style="width:16px;height:16px;stroke:var(--text-muted);fill:none;stroke-width:1.8;stroke-linecap:round;flex-shrink:0" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <span id="bq-sa-label" style="font-size:12.5px;color:var(--text-muted)">Click to upload service-account-key.json</span>
+                  <input type="file" id="bq-sa-file" accept=".json" style="display:none" onchange="handleSAUpload(this)">
+                </div>
+              </div>
+            </div>
+            <div id="bq-conn-msg" style="margin-top:12px;font-size:12px;display:none"></div>
+          </div>
+
+          <!-- RIGHT: Global settings -->
+          <div class="section-card" style="margin-bottom:0">
+            <div class="section-title" style="margin-bottom:14px">Query Defaults</div>
+            <div class="form-group">
+              <label class="form-label">Report Date Parameter</label>
+              <input class="form-input" id="bq-date-param" value="@report_date" style="font-family:'DM Mono',monospace;font-size:12px">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Vendor ID Parameter</label>
+              <input class="form-input" id="bq-vendor-param" value="@vendor_id" style="font-family:'DM Mono',monospace;font-size:12px">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Max Rows per Vendor</label>
+              <input class="form-input" id="bq-max-rows" value="10000" type="number">
+            </div>
+            <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:14px;display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:12.5px;font-weight:500">Cache query results</div>
+              <div class="bq-toggle on" id="tog-cache" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
+              <div style="font-size:12.5px;font-weight:500">Retry on failure</div>
+              <div class="bq-toggle on" id="tog-retry" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REPORT QUERY CONFIGS — one accordion per report -->
+        <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:600;margin-bottom:12px">Report Query Configuration</div>
+        <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:16px">Each report has its own BigQuery table/view and query. Configure independently.</div>
+
+        <div id="bq-report-accordions"></div>
+
+        <!-- SAVE BUTTON -->
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px">
+          <button class="btn btn-ghost btn-sm" onclick="resetBQConfig()">Reset to Defaults</button>
+          <button class="btn btn-primary" onclick="saveBQConfig()">
+            <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Save All Query Config
+          </button>
+        </div>
+
+      </div>
+      <div id="screen-audit" class="screen">
+        <div class="section-card" style="text-align:center;padding:40px">
+          <div style="font-size:28px;margin-bottom:12px">🔒</div>
+          <div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:600;margin-bottom:8px">Audit Logs</div>
+          <div style="color:var(--text-muted);font-size:13px">Full audit trail of all vendor data changes, document uploads, and report sends.</div>
+        </div>
+      </div>
+      <div id="screen-settings" class="screen">
+        <div class="section-card" style="text-align:center;padding:40px">
+          <div style="font-size:28px;margin-bottom:12px">⚙️</div>
+          <div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:600;margin-bottom:8px">Settings</div>
+          <div style="color:var(--text-muted);font-size:13px">Email config, roles, security settings.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VENDOR DETAIL PANEL -->
+<div id="overlay" onclick="closePanel()"></div>
+<div id="detail-panel">
+  <div class="panel-header">
+    <div class="panel-avatar" id="panel-avatar"></div>
+    <div style="flex:1">
+      <div class="panel-name" id="panel-name"></div>
+      <div class="panel-meta" id="panel-meta"></div>
+    </div>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="panelTab(this,'info')">Master Data</div>
+    <div class="tab" onclick="panelTab(this,'financials')">Financials</div>
+    <div class="tab" onclick="panelTab(this,'charges')">Charges</div>
+    <div class="tab" onclick="panelTab(this,'banking')">Banking</div>
+  </div>
+  <div class="panel-body" id="panel-body"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// VENDOR DATA — All 39 from Nexus_Vendor_Master.xlsx
+// ═══════════════════════════════════════
+const VENDORS = [
+  {cid:21,company:'Raymond Limited',brands:'Raymond, Color Plus, Park Avenue',store:'Nexus Seawoods Mall',pan:'AAJCR2207E',gst:'27AAJCR2207E1ZN',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'7400477655',poc_email:'ravi.ben@raymond.in'},
+  {cid:25,company:'Celio Retail Private Limited',brands:'Celio',store:'Nexus Seawoods Mall',pan:'AADCC3844J',gst:'27AADCC3844J1ZK',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_57500000514811',ifsc:'HDFC0000523',link_acc:'acc_QwVtW79TeVXR6d',poc_phone:'9930766373',poc_email:'sneha.shinde@celio.com'},
+  {cid:63,company:'Ikon Retail Private Limited',brands:'Latin Quarters',store:'Nexus Seawoods Mall',pan:'AABCI5529C',gst:'27AABCI5529C1ZT',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.15,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_03372320000688',ifsc:'HDFC0000337',link_acc:'acc_RTMgwDeN0DymqN',poc_phone:'9899215444',poc_email:'bharat@ikonretail.com,account_ebo@ikonretail.com'},
+  {cid:869,company:'Rosso Brunello Leathers Pvt Ltd',brands:'Rosso Brunello',store:'Nexus Seawoods Mall',pan:'AAECR9541C',gst:'27AAECR9541C1ZD',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.19,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_000705500293',ifsc:'ICIC0000007',link_acc:'acc_RkJewpp6uYDuMr',poc_phone:'9899977505',poc_email:'Ravinder@rossobrunello.com'},
+  {cid:1137,company:'Regal Brands Private Limited',brands:'Regal',store:'Nexus Seawoods Mall',pan:'AANCR1479C',gst:'27AANCR1479C1Z7',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.15,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_127263700000092',ifsc:'YESB0001272',link_acc:'acc_RTMh1uZ7xcCR8I',poc_phone:'8169144599',poc_email:'vijays@regalshoes.co.in'},
+  {cid:2280,company:'Estele Accessories Private Ltd',brands:'Estele',store:'Nexus Seawoods Mall',pan:'AAFCE6875M',gst:'27AAFCE6875M1ZX',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.20,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_9885199990',ifsc:'KKBK0000553',link_acc:'acc_QwVhVNMM7iKjAC',poc_phone:'9017756624',poc_email:'kushal.sharma@estele.co'},
+  {cid:2467,company:'Four Aces Fashion House Private Limited',brands:'Being Human',store:'Nexus Seawoods Mall',pan:'AADCF9667N',gst:'27AADCF9667N1ZS',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_9749691166',ifsc:'KKBK0001367',link_acc:'acc_RRNav2uAwyHelI',poc_phone:'9632723114',poc_email:'jimesh.vakharia@beinghumanclothing.com,vishal.jawale@beinghumanclothing.com'},
+  {cid:3932,company:'Credo Brands Marketing Limited',brands:'Mufti',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Inactive',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9324344133',poc_email:'manish@mufti.in'},
+  {cid:4835,company:'Reliance Retail Limited',brands:'TIRA',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:null,poc_email:null},
+  {cid:7352,company:'William Penn Private Limited',brands:'William Penn',store:'Nexus Seawoods Mall',pan:'AAACW7118G',gst:'27AAACW7118G1ZB',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.12,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_7611448641',ifsc:'KKBK0000424',link_acc:'acc_RRNtYieXFl4vQ4',poc_phone:'8828244444',poc_email:'ajay@williampenn.net'},
+  {cid:7392,company:'Woodland (Aero Club) Private Limited',brands:'WOODLAND',store:'Nexus Seawoods Mall',pan:'AADCW6753E',gst:'27AADCW6753E1Z5',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_21580500000215',ifsc:'BARB0INDELX',link_acc:'acc_RTMmY811HtffqQ',poc_phone:'7303059698',poc_email:'shishirmishra@woodlandworldwide.com'},
+  {cid:9342,company:'Burnt Umber Fashion Pvt Ltd',brands:'Amukti',store:'Nexus Seawoods Mall',pan:'AAECB7404N',gst:'27AAECB7404N1ZG',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_02392560002630',ifsc:'HDFC0000239',link_acc:'acc_QwVyXti6vdgbLD',poc_phone:'9967536997',poc_email:'kushbhatia@burntumberfashion.com'},
+  {cid:9365,company:'Meena Bazaar',brands:'Meena Bazaar',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.14,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8750242261',poc_email:'suryakant@meenabazaar.shop'},
+  {cid:9537,company:'Majestic Perfumes India Ltd',brands:'Majestic Perfume',store:'Nexus Seawoods Mall',pan:'ABFFM6216J',gst:'27ABFFM6216J1Z4',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.15,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_102105001814',ifsc:'ICIC0001021',link_acc:'acc_RTMhCc0SMidPhk',poc_phone:'9967864328',poc_email:'kbhikba@gmail.com'},
+  {cid:9741,company:'Modenik Lifestyle Private Limited',brands:'Enamor',store:'Nexus Seawoods Mall',pan:'AABCD9300J',gst:'27AABCD9300J1ZQ',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9886788140',poc_email:'ekantha.naik@modenik.in'},
+  {cid:9768,company:'Shasthas Clothing',brands:'Shastha',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.14,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8369659459',poc_email:'ayyappansk105@gmail.com'},
+  {cid:9830,company:'Sabhyata',brands:'Sabhyata',store:'Nexus Seawoods Mall',pan:'AAXFS3308J',gst:'27AAXFS3308J1ZN',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_01342000007270',ifsc:'HDFC0000134',link_acc:'acc_RTMhIUWgDbIbe8',poc_phone:'8130019818',poc_email:'adnanwasim@sabhyataclothing.com'},
+  {cid:9892,company:'The Perfume Store',brands:'The Perfume Store',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9867873639',poc_email:'sayed.suhail@gmail.com'},
+  {cid:10012,company:'Ochre And Black Private Limited',brands:'AND & Global Desi',store:'Nexus Seawoods Mall',pan:'AACCO8356L',gst:'27AACCO8356L1ZW',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.14,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_57500000377711',ifsc:'HDFC0000831',link_acc:'acc_RTMhPCPTfoeAUO',poc_phone:'8878412514',poc_email:'umesh.nikaju@houseofanitadongre.com'},
+  {cid:10013,company:'Colorbar Cosmetics Pvt Ltd',brands:'Colorbar',store:'Nexus Seawoods Mall',pan:'AAICS2414D',gst:'27AAICS2414D1ZO',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_164105000071',ifsc:'ICIC0000046',link_acc:'acc_RRNteqLq3oT9k8',poc_phone:'9818682379',poc_email:'rbhattacharya-cb@modienterprise.com'},
+  {cid:10060,company:'Chogori India Retail Ltd',brands:'Columbia Sports Wear',store:'Nexus Seawoods Mall',pan:'AADCC2405P',gst:'27AADCC2405P1ZL',status:'Live & Active',tot:'Signed',agreement:'Signed',model:'Blended Model',commission:0.18,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_50200113063984',ifsc:'HDFC0005578',link_acc:'acc_RRNtlhhjPgBKvX',poc_phone:'9650262420',poc_email:'ecom.mis@chogoriindia.com'},
+  {cid:10085,company:'Hidesign India Private Limited',brands:'HiDesign',store:'Nexus Seawoods Mall',pan:'AACCH0586R',gst:'27AACCH0586R1ZZ',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_04072320000801',ifsc:'HDFC0000407',link_acc:'acc_RTMhVUdoNDaWZW',poc_phone:'9820792945',poc_email:'hasan.q@hidesign.com'},
+  {cid:10101,company:'Pl Tour Fairy Pvt Ltd',brands:'IT Luggage',store:'Nexus Seawoods Mall',pan:'AAJCP9260B',gst:'27AAJCP9260B1ZC',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.16,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'7045455594',poc_email:'nagesh.temkar@frequenttraveller.in'},
+  {cid:10179,company:'Go Fashion India Limited',brands:'Go Colors',store:'Nexus Seawoods Mall',pan:'AADCG9557C',gst:'27AADCG9557C1ZH',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9566883407',poc_email:'raghul.pk@gocolors.com'},
+  {cid:10219,company:'Quest Retail Pvt Ltd',brands:'go fashion',store:'Nexus Seawoods Mall',pan:'AAACQ1315K',gst:'27AAACQ1315K1ZL',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.12,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_06222320000589',ifsc:'HDFC0000622',link_acc:'acc_RRNtrkx63Vgx36',poc_phone:'9980770916',poc_email:'sujith.kg@questretail.in'},
+  {cid:10319,company:'Just In Time Trading Pvt Ltd',brands:'Just In Time, Tissot',store:'Nexus Seawoods Mall',pan:'AACCJ3745N',gst:'27AACCJ3745N1Z6',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8652604335',poc_email:'kushal@justintime.in'},
+  {cid:10552,company:'Forever New Apparels Private Ltd',brands:'Forever New',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.16,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_50200114385456',ifsc:'HDFC0000044',link_acc:'acc_RTMhb9rzFwSt3C',poc_phone:'9873183898',poc_email:'Kunal.Behl@forevernew.in'},
+  {cid:10555,company:'ShoppersStop',brands:'ShoppersStop',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:null,poc_email:null},
+  {cid:10556,company:'Benetton India Pvt Ltd',brands:'UCB',store:'Nexus Seawoods Mall',pan:'AAACD1013F',gst:'27AAACD1013F2ZD',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.18,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_503044012905',ifsc:'KKBK0000172',link_acc:'acc_RTMhhJyjliyGc6',poc_phone:'9871880211',poc_email:'v.sharma@benetton.co.in'},
+  {cid:10557,company:'S D Retail Limited',brands:'Sweet Dreams',store:'Nexus Seawoods Mall',pan:'AAICS8200M',gst:'27AAICS8200M2Z0',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.23,pg:'NA',logistics:'NA',packaging:'NA',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_00062320013509',ifsc:'HDFC0000006',link_acc:'acc_RZAvyN8A84bpJQ',poc_phone:'9764235388',poc_email:'swapnil@sweetdreamsindia.com'},
+  {cid:10574,company:'Aditya Birla Lifestyle Brands Limited',brands:'All Aditya Birla Lifestyle Brand',store:'Nexus Seawoods Mall',pan:'ABACA5076G',gst:'27ABACA5076G1ZQ',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.21,pg:'NA',logistics:'NA',packaging:'NA',sla:'NA',exceptions:null,bank_acc:'_57500001488734',ifsc:'HDFC0000060',link_acc:'acc_RRNu6XEUUbcCxQ',poc_phone:'9743122600',poc_email:'rajaram.bandagi@abfrl.adityabirla.com'},
+  {cid:10579,company:'Metro Brands Limited',brands:'Metro Brands',store:'Nexus Seawoods Mall',pan:'AAACM4754E',gst:'27AAACM4754E1ZL',status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8356954039',poc_email:'durvesh.Phakatkar@metrobrands.com'},
+  {cid:10625,company:'Asg Kompanero Limited',brands:'Kompanero',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Cost + Model',commission:0.15,pg:0.02,logistics:'As Per Rate Card',packaging:'Flat 15 + GST',sla:'Flat 250 + GST',exceptions:null,bank_acc:'_10826655795',ifsc:'SBIN0004288',link_acc:'acc_RTMhnTiWYRxsFn',poc_phone:'8800097381',poc_email:'abhishek@kompanero.in'},
+  {cid:10676,company:'Mokobara Lifestyle Private Limited',brands:'Mokobara',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'8333032910',poc_email:'khushibarnwal@mokobara.com'},
+  {cid:10721,company:'Safari Industries India Ltd',brands:'Safari',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9892877994',poc_email:'manoj.patel@safari.in'},
+  {cid:10857,company:'Aditya Birla Fashion and Retail Limited',brands:'Pantaloons',store:'Nexus Seawoods Mall',pan:'AAECP2371C',gst:'27AAECP2371C1ZP',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.18,pg:'NA',logistics:'NA',packaging:'NA',sla:'NA',exceptions:null,bank_acc:'_913020011832345',ifsc:'UTIB0000060',link_acc:'acc_Rc13KFlvH87ncg',poc_phone:'8114466762',poc_email:'vikas.bhomia@abfrl.adityabirla.com'},
+  {cid:10880,company:'Aditya Birla Fashion and Retail Limited',brands:'W, Aurelia, Eleven, Wishful',store:'Nexus Seawoods Mall',pan:'AAECP2371C',gst:'27AAECP2371C1ZP',status:'Live & Active',tot:'Signed',agreement:'Pending',model:'Blended Model',commission:0.21,pg:'NA',logistics:'NA',packaging:'NA',sla:'NA',exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9821254916',poc_email:'shiva.shami@abfrl.adityabirla.com'},
+  {cid:10896,company:'Ras Beauty Pvt Ltd',brands:'RAS Luxury Skincare',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'7400989697',poc_email:'retailoperations@rasluxuryoils.com'},
+  {cid:10928,company:'Inc5 Shoes Pvt Ltd',brands:'INC5',store:'Nexus Seawoods Mall',pan:null,gst:null,status:'Live & Active',tot:'Signed',agreement:'Pending',model:null,commission:null,pg:null,logistics:null,packaging:null,sla:null,exceptions:null,bank_acc:null,ifsc:null,link_acc:null,poc_phone:'9960734050',poc_email:'girish.w@inc5shoes.com'},
+];
+
+// ═══════════════════════════════════════
+// COLUMN DEFINITIONS
+// ═══════════════════════════════════════
+const COLUMNS = [
+  { key:'cid', label:'CID', mono:true, visible:true, sortable:true },
+  { key:'company', label:'Company Name', visible:true, sortable:true, minw:180 },
+  { key:'brands', label:'Brand Names', visible:true, sortable:false, minw:160 },
+  { key:'store', label:'Store', visible:false, sortable:false },
+  { key:'pan', label:'PAN', mono:true, visible:true, sortable:false },
+  { key:'gst', label:'GST Number', mono:true, visible:true, sortable:false, minw:170 },
+  { key:'status', label:'Status', visible:true, sortable:true },
+  { key:'tot', label:'TOT Status', visible:true, sortable:false },
+  { key:'agreement', label:'Agreement', visible:true, sortable:true },
+  { key:'model', label:'Model', visible:true, sortable:true },
+  { key:'commission', label:'Commission', visible:true, sortable:true },
+  { key:'pg', label:'PG Charges', visible:true, sortable:false },
+  { key:'logistics', label:'Logistics', visible:false, sortable:false },
+  { key:'packaging', label:'Packaging', visible:false, sortable:false },
+  { key:'sla', label:'SLA Charges', visible:true, sortable:false },
+  { key:'exceptions', label:'Exceptions', visible:false, sortable:false },
+  { key:'bank_acc', label:'Bank A/C', mono:true, visible:false, sortable:false },
+  { key:'ifsc', label:'IFSC', mono:true, visible:true, sortable:false },
+  { key:'link_acc', label:'Link Account ID', mono:true, visible:false, sortable:false },
+  { key:'poc_phone', label:'POC Phone', visible:true, sortable:false },
+  { key:'poc_email', label:'POC Email', visible:true, sortable:false, minw:200 },
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let filtered = [...VENDORS];
+let sortKey = 'cid', sortDir = 1;
+let currentPage = 1;
+const PAGE_SIZE = 15;
+let currentVendor = null;
+
+// ═══════════════════════════════════════
+// COLUMN MENU
+// ═══════════════════════════════════════
+function buildColMenu() {
+  const menu = document.getElementById('col-menu');
+  menu.innerHTML = '<div class="col-toggle-title">Show / Hide Columns</div>' +
+    COLUMNS.map((c,i) => `
+      <div class="col-item" onclick="toggleCol(${i})">
+        <div class="col-check ${c.visible?'checked':''}" id="ccheck-${i}"></div>
+        ${c.label}
+      </div>
+    `).join('');
+}
+
+function toggleColMenu() {
+  document.getElementById('col-menu').classList.toggle('open');
+}
+
+function toggleCol(i) {
+  COLUMNS[i].visible = !COLUMNS[i].visible;
+  document.getElementById('ccheck-'+i).className = 'col-check' + (COLUMNS[i].visible ? ' checked' : '');
+  renderTable();
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.col-toggle-wrap')) document.getElementById('col-menu').classList.remove('open');
+});
+
+// ═══════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════
+function applyFilters() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const status = document.getElementById('filter-status').value;
+  const model = document.getElementById('filter-model').value;
+  const agr = document.getElementById('filter-agreement').value;
+
+  filtered = VENDORS.filter(v => {
+    const matchQ = !q ||
+      String(v.cid).includes(q) ||
+      (v.company||'').toLowerCase().includes(q) ||
+      (v.brands||'').toLowerCase().includes(q) ||
+      (v.poc_email||'').toLowerCase().includes(q) ||
+      (v.pan||'').toLowerCase().includes(q) ||
+      (v.gst||'').toLowerCase().includes(q);
+    const matchStatus = !status || v.status === status;
+    const matchModel = !model || v.model === model;
+    const matchAgr = !agr || v.agreement === agr;
+    return matchQ && matchStatus && matchModel && matchAgr;
+  });
+
+  // apply current sort
+  sortData();
+  currentPage = 1;
+  renderTable();
+  document.getElementById('count-pill').textContent = filtered.length + ' vendor' + (filtered.length !== 1 ? 's' : '');
+}
+
+// ═══════════════════════════════════════
+// SORT
+// ═══════════════════════════════════════
+function sortData() {
+  filtered.sort((a, b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if (av === null || av === undefined) av = '';
+    if (bv === null || bv === undefined) bv = '';
+    if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * sortDir;
+    return String(av).localeCompare(String(bv)) * sortDir;
+  });
+}
+
+function doSort(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  sortData();
+  currentPage = 1;
+  renderTable();
+}
+
+// ═══════════════════════════════════════
+// CELL RENDERERS
+// ═══════════════════════════════════════
+function fmtCell(v, col) {
+  const val = v[col.key];
+  if (col.key === 'status') {
+    return val === 'Live & Active'
+      ? `<span class="badge badge-green"><span class="dot"></span> Live</span>`
+      : `<span class="badge badge-red"><span class="dot"></span> Inactive</span>`;
+  }
+  if (col.key === 'agreement') {
+    return val === 'Signed'
+      ? `<span class="badge badge-teal">Signed</span>`
+      : `<span class="badge badge-amber">Pending</span>`;
+  }
+  if (col.key === 'tot') return `<span class="badge badge-blue">${val||'—'}</span>`;
+  if (col.key === 'model') {
+    if (!val) return `<span style="color:var(--text-muted)">—</span>`;
+    return val === 'Blended Model'
+      ? `<span class="badge badge-purple">Blended</span>`
+      : `<span class="badge badge-blue">Cost+</span>`;
+  }
+  if (col.key === 'commission') {
+    if (val === null || val === undefined) return `<span style="color:var(--text-muted)">—</span>`;
+    return `<strong style="color:var(--accent)">${Math.round(val*100)}%</strong>`;
+  }
+  if (col.key === 'pg') {
+    if (val === null || val === undefined) return `<span style="color:var(--text-muted)">—</span>`;
+    if (val === 'NA') return `<span class="chip">NA</span>`;
+    return `${Math.round(val*100)}%`;
+  }
+  if (col.key === 'poc_email') {
+    if (!val) return `<span style="color:var(--text-muted)">—</span>`;
+    const emails = val.split(',');
+    return emails.map(e => `<span style="color:var(--blue);font-size:11.5px">${e.trim()}</span>`).join('<br>');
+  }
+  if (col.key === 'company') return `<div style="font-weight:500;max-width:220px;overflow:hidden;text-overflow:ellipsis">${val||'—'}</div>`;
+  if (col.key === 'brands') return `<div style="color:var(--text-secondary);max-width:180px;overflow:hidden;text-overflow:ellipsis">${val||'—'}</div>`;
+  if (!val) return `<span style="color:var(--text-muted)">—</span>`;
+  if (col.mono) return `<span class="mono">${val}</span>`;
+  return val;
+}
+
+// ═══════════════════════════════════════
+// RENDER TABLE
+// ═══════════════════════════════════════
+function renderTable() {
+  const visCols = COLUMNS.filter(c => c.visible);
+  const thead = document.getElementById('table-head');
+  const tbody = document.getElementById('table-body');
+
+  // HEADER
+  thead.innerHTML = '<tr>' + visCols.map(c => {
+    const sortClass = sortKey === c.key ? (sortDir === 1 ? ' sort-asc' : ' sort-desc') : '';
+    const click = c.sortable ? `onclick="doSort('${c.key}')"` : '';
+    const style = c.minw ? ` style="min-width:${c.minw}px"` : '';
+    return `<th class="${sortClass}" ${click}${style}>${c.label}</th>`;
+  }).join('') + '</tr>';
+
+  // BODY
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page = filtered.slice(start, start + PAGE_SIZE);
+
+  tbody.innerHTML = page.length === 0
+    ? `<tr><td colspan="${visCols.length}" style="text-align:center;padding:40px;color:var(--text-muted)">No vendors match the current filters</td></tr>`
+    : page.map(v => {
+        const cells = visCols.map(c => `<td class="${c.mono?'mono':''}">${fmtCell(v,c)}</td>`).join('');
+        return `<tr onclick="openPanel(${VENDORS.indexOf(v)})">${cells}</tr>`;
+      }).join('');
+
+  renderPagination();
+}
+
+// ═══════════════════════════════════════
+// PAGINATION
+// ═══════════════════════════════════════
+function renderPagination() {
+  const total = filtered.length;
+  const pages = Math.ceil(total / PAGE_SIZE);
+  const start = (currentPage-1)*PAGE_SIZE+1;
+  const end = Math.min(currentPage*PAGE_SIZE, total);
+
+  document.getElementById('page-info').textContent = total === 0 ? 'No results' : `${start}–${end} of ${total}`;
+
+  const btns = document.getElementById('page-btns');
+  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+  for (let i = 1; i <= pages; i++) {
+    if (pages > 6 && i > 2 && i < pages-1 && Math.abs(i-currentPage) > 1) {
+      if (i === 3 || i === pages-2) html += `<span style="padding:4px 3px;color:var(--text-muted)">…</span>`;
+      continue;
+    }
+    html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>`;
+  btns.innerHTML = html;
+}
+
+function goPage(p) {
+  const pages = Math.ceil(filtered.length / PAGE_SIZE);
+  if (p < 1 || p > pages) return;
+  currentPage = p;
+  renderTable();
+}
+
+// ═══════════════════════════════════════
+// VENDOR DETAIL PANEL
+// ═══════════════════════════════════════
+const AVATAR_COLORS = [
+  ['var(--blue-dim)','var(--blue)'],['var(--green-dim)','var(--green)'],
+  ['var(--purple-dim)','var(--purple)'],['var(--accent-dim)','var(--accent)'],
+  ['var(--teal-dim)','var(--teal)'],['var(--red-dim)','var(--red)'],
+];
+
+function getInitials(name) {
+  return name.split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+function openPanel(idx) {
+  const v = VENDORS[idx];
+  currentVendor = v;
+  const col = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+
+  const av = document.getElementById('panel-avatar');
+  av.textContent = getInitials(v.brands || v.company);
+  av.style.background = col[0];
+  av.style.color = col[1];
+
+  document.getElementById('panel-name').textContent = v.company;
+  document.getElementById('panel-meta').innerHTML =
+    `CID: ${v.cid} &nbsp;·&nbsp; ${v.brands} &nbsp;·&nbsp; ` +
+    `<span class="badge ${v.status==='Live & Active'?'badge-green':'badge-red'}" style="vertical-align:middle;font-size:10px"><span class="dot"></span> ${v.status}</span>`;
+
+  renderPanelTab('info');
+  document.querySelectorAll('#detail-panel .tab').forEach((t,i)=> t.classList.toggle('active', i===0));
+
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+
+function renderPanelTab(tab) {
+  const v = currentVendor;
+  if (!v) return;
+  const body = document.getElementById('panel-body');
+  const val = (x, mono=false, email=false) => {
+    if (x===null||x===undefined||x==='') return `<span class="field-val empty">—</span>`;
+    if (email) return x.split(',').map(e=>`<a href="mailto:${e.trim()}" class="field-val email" style="display:block">${e.trim()}</a>`).join('');
+    return `<span class="field-val ${mono?'mono':''}">${x}</span>`;
+  };
+  const pct = x => (x===null||x===undefined) ? `<span class="field-val empty">—</span>` : (x==='NA'?`<span class="field-val">NA</span>`:`<span class="field-val"><strong style="color:var(--accent)">${Math.round(x*100)}%</strong></span>`);
+
+  if (tab === 'info') {
+    body.innerHTML = `
+      <div class="panel-section">
+        <div class="panel-section-title">Business Information</div>
+        <div class="field-grid">
+          <div class="field"><div class="field-label">CID</div>${val(v.cid, true)}</div>
+          <div class="field"><div class="field-label">Store</div>${val(v.store)}</div>
+          <div class="field full-width"><div class="field-label">Company Name</div>${val(v.company)}</div>
+          <div class="field full-width"><div class="field-label">Brand Names</div>${val(v.brands)}</div>
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Status & Agreements</div>
+        <div class="field-grid">
+          <div class="field"><div class="field-label">Company Status</div>
+            <span class="badge ${v.status==='Live & Active'?'badge-green':'badge-red'}"><span class="dot"></span> ${v.status}</span>
+          </div>
+          <div class="field"><div class="field-label">TOT Status</div>
+            <span class="badge badge-blue">${v.tot||'—'}</span>
+          </div>
+          <div class="field"><div class="field-label">Agreement Status</div>
+            <span class="badge ${v.agreement==='Signed'?'badge-teal':'badge-amber'}">${v.agreement||'—'}</span>
+          </div>
+          <div class="field"><div class="field-label">Commission Model</div>
+            ${v.model ? `<span class="badge ${v.model==='Blended Model'?'badge-purple':'badge-blue'}">${v.model}</span>` : `<span class="field-val empty">—</span>`}
+          </div>
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Point of Contact</div>
+        <div class="field-grid">
+          <div class="field"><div class="field-label">Phone</div>${val(v.poc_phone, true)}</div>
+          <div class="field full-width"><div class="field-label">Email</div>${val(v.poc_email, false, true)}</div>
+        </div>
+      </div>`;
+  } else if (tab === 'financials') {
+    body.innerHTML = `
+      <div class="panel-section">
+        <div class="panel-section-title">Tax & Compliance</div>
+        <div class="field-grid">
+          <div class="field"><div class="field-label">PAN Number</div>${val(v.pan, true)}</div>
+          <div class="field"><div class="field-label">GST Number</div>${val(v.gst, true)}</div>
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Commission Structure</div>
+        <div class="field-grid">
+          <div class="field"><div class="field-label">Model</div>${v.model?`<span class="badge ${v.model==='Blended Model'?'badge-purple':'badge-blue'}">${v.model}</span>`:`<span class="field-val empty">—</span>`}</div>
+          <div class="field"><div class="field-label">Commission Rate</div>${pct(v.commission)}</div>
+          <div class="field"><div class="field-label">PG Charges</div>${pct(v.pg)}</div>
+          <div class="field"><div class="field-label">Exceptions</div>${val(v.exceptions)}</div>
+        </div>
+      </div>`;
+  } else if (tab === 'charges') {
+    body.innerHTML = `
+      <div class="panel-section">
+        <div class="panel-section-title">Operational Charges</div>
+        <div class="field-grid">
+          <div class="field full-width"><div class="field-label">Logistics Charges</div>${val(v.logistics)}</div>
+          <div class="field full-width"><div class="field-label">Packaging Charges</div>${val(v.packaging)}</div>
+          <div class="field full-width"><div class="field-label">SLA Charges</div>${val(v.sla)}</div>
+          <div class="field full-width"><div class="field-label">Exceptions / Standard Terms</div>${val(v.exceptions)}</div>
+        </div>
+      </div>`;
+  } else if (tab === 'banking') {
+    body.innerHTML = `
+      <div class="panel-section">
+        <div class="panel-section-title">Bank Details</div>
+        <div class="field-grid">
+          <div class="field full-width"><div class="field-label">Bank Account Number</div>${val(v.bank_acc, true)}</div>
+          <div class="field"><div class="field-label">IFSC Code</div>${val(v.ifsc, true)}</div>
+          <div class="field full-width"><div class="field-label">Link Account ID (Razorpay)</div>${val(v.link_acc, true)}</div>
+        </div>
+      </div>`;
+  }
+}
+
+function panelTab(el, tab) {
+  document.querySelectorAll('#detail-panel .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderPanelTab(tab);
+}
+
+function closePanel() {
+  document.getElementById('detail-panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// ═══════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════
+function exportCSV() {
+  const headers = ['CID','Company Name','Brand Names','Store','PAN','GST','Status','TOT Status','Agreement','Model','Commission','PG Charges','Logistics','Packaging','SLA Charges','Exceptions','Bank Account','IFSC','Link Account ID','POC Phone','POC Email'];
+  const rows = filtered.map(v => [
+    v.cid, v.company, v.brands, v.store, v.pan||'', v.gst||'', v.status,
+    v.tot, v.agreement, v.model||'', v.commission!==null?Math.round(v.commission*100)+'%':'',
+    v.pg!==null?(v.pg==='NA'?'NA':Math.round(v.pg*100)+'%'):'',
+    v.logistics||'', v.packaging||'', v.sla||'', v.exceptions||'',
+    v.bank_acc||'', v.ifsc||'', v.link_acc||'', v.poc_phone||'', v.poc_email||''
+  ].map(x => `"${x}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'nexus_vendor_master.csv';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+const pageNames = {dashboard:'Dashboard',vendors:'Vendors — Nexus Seawoods Mall',docs:'Documents',reports:'Reports & Scheduling',comms:'Communications',bigquery:'BigQuery Integration',audit:'Audit Logs',settings:'Settings'};
+
+function nav(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-'+screen).classList.add('active');
+  document.getElementById('page-title').textContent = pageNames[screen]||screen;
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if ((n.getAttribute('onclick')||'').includes("'"+screen+"'")) n.classList.add('active');
+  });
+  if (screen === 'bigquery') {
+    initBQAccordions();
+    const first = document.querySelector('.bq-accordion');
+    if (first && !first.classList.contains('active')) first.classList.add('active');
+  }
+}
+
+// ═══════════════════════════════════════
+// REPORTS MODULE
+// ═══════════════════════════════════════
+
+// ─── SAMPLE DATA GENERATORS ───
+function rndPick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function rndInt(a,b) { return Math.floor(Math.random()*(b-a+1))+a; }
+function rndFloat(a,b,d=2) { return parseFloat((Math.random()*(b-a)+a).toFixed(d)); }
+function fmtDate(d) { return d.toISOString().split('T')[0]; }
+function addDays(d,n) { const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+
+const BASE_DATE = new Date('2025-01-15');
+const COMPANIES = [
+  {id:25,name:'Celio Retail Private Limited',brand:'Celio',code:'A7066'},
+  {id:63,name:'Ikon Retail Private Limited',brand:'Latin Quarters',code:'A7067'},
+  {id:10013,name:'Colorbar Cosmetics Pvt Ltd',brand:'Colorbar',code:'A7068'},
+  {id:10060,name:'Chogori India Retail Ltd',brand:'Columbia Sports Wear',code:'A7069'},
+  {id:10085,name:'Hidesign India Private Limited',brand:'HiDesign',code:'A7070'},
+  {id:7392,name:'Woodland (Aero Club) Private Limited',brand:'WOODLAND',code:'A7071'},
+  {id:10556,name:'Benetton India Pvt Ltd',brand:'UCB',code:'A7072'},
+  {id:10557,name:'S D Retail Limited',brand:'Sweet Dreams',code:'A7073'},
+];
+const STATES = ['Delivered','Cancelled by Fynd','RTO','Bag Packed','Placed'];
+const CHANNELS = ['NEXUS','FYND_PLATFORM','marketplace'];
+const PAYMENTS = ['UPI','Cash on Delivery','Net Banking','Credit Card','PPD'];
+const DPS = ['Borzo Hyperlocal','Tms Nexus 247','Bluedart Express','Delhivery Air'];
+const ZONES = ['Local (Zone-A)','Zonal (Zone-B)','Metro2Metro (Zone-C)'];
+const JOURNEYS = ['FWD','RTO','DTO'];
+const PLANS = ['Cost + Model','Blended Model'];
+
+function generateTransactionalData() {
+  const rows = [];
+  for (let i = 0; i < 120; i++) {
+    const co = rndPick(COMPANIES);
+    const d = addDays(BASE_DATE, rndInt(-30,0));
+    const mrp = rndFloat(299,4999);
+    const disc = rndFloat(0, mrp*0.3);
+    const esp = parseFloat((mrp-disc).toFixed(2));
+    const gst = parseFloat((esp*0.12).toFixed(2));
+    const paid = parseFloat((esp+gst).toFixed(2));
+    rows.push({
+      Transaction_Type: rndPick(['Sale','Return','Exchange']),
+      bag_status_id: rndInt(1000,9999),
+      date: fmtDate(d),
+      bag_status_created_at: fmtDate(d)+'T'+rndInt(6,22)+':'+rndInt(0,59).toString().padStart(2,'0')+':00',
+      bag_created_date: fmtDate(d),
+      Created_Date: fmtDate(addDays(d,-1)),
+      order_platform: 'NEXUS',
+      ordering_channel: rndPick(CHANNELS),
+      ordering_source: 'WEB',
+      new_ordering_channel: 'NEXUS',
+      mode_of_payment: rndPick(PAYMENTS),
+      State_Date: fmtDate(d),
+      expected_date_of_del: fmtDate(addDays(d,3)),
+      bag_id: 'BAG'+rndInt(100000000,999999999),
+      parent_id: rndInt(10000,99999),
+      shipment_id: '/'+rndInt(17000000000000000,17999999999999999),
+      affiliate_shipment_id: '/'+rndInt(1000000,9999999),
+      affiliate_bag_id: rndInt(100000,999999),
+      order_id: '/'+rndInt(17000000000000000,17999999999999999),
+      affiliate_order_id: '/'+rndInt(1000000,9999999),
+      affiliate_name: 'NEXUS',
+      po_number: '',
+      customer_gstin: '',
+      Itemcode: 'IC'+rndInt(10000,99999),
+      Item_ID: rndInt(1000000,9999999),
+      Articlecode: 'ART'+rndInt(10000,99999),
+      tag_number: 'TAG'+rndInt(1000,9999),
+      seller_identifier: co.id+'_'+rndInt(1000,9999),
+      ean: rndInt(1000000000000,9999999999999),
+      sku_code: co.brand.substring(0,3).toUpperCase()+rndInt(1000,9999),
+      is_set_article: 'N',
+      article_qnty: 1,
+      Item_Name: co.brand+' Product '+rndInt(100,999),
+      Size: rndPick(['XS','S','M','L','XL','XXL','Free Size']),
+      Brand: co.brand,
+      brand_id: co.id,
+      Gender: rndPick(['M','F','U']),
+      Payment: rndPick(PAYMENTS),
+      payment_mode: 'PREPAID',
+      multi_tender_mode: '',
+      transfer_price: rndFloat(100,mrp),
+      ESP: esp,
+      Fees: rndFloat(0,50),
+      delivery_charge: rndPick([0,49,99]),
+      cod_charge: 0,
+      Cashback_Used: 0,
+      Fynd_Credits: 0,
+      Coupon_Discount: rndPick([0,0,0,50,100,200]),
+      Promotion_Effective_Discount: disc,
+      payable_category: 'seller',
+      fynd_promotion_discount: 0,
+      seller_promotion_discount: disc,
+      Billed_Amount: paid,
+      Amount_Paid: paid,
+      employee_discount: 0,
+      loyalty_discount: 0,
+      Revenue: esp,
+      unit_price: esp,
+      total_charges: rndFloat(0,100),
+      charges_name: rndPick(['SLA Charges','Packaging Charges','PG Charges','']),
+      State: rndPick(STATES)
+    });
+  }
+  return rows;
+}
+
+function generateReconData() {
+  const rows = [];
+  for (let i = 0; i < 80; i++) {
+    const co = rndPick(COMPANIES);
+    const d = addDays(BASE_DATE, rndInt(-20,0));
+    const mrp = rndFloat(499,5999);
+    const disc = rndFloat(0,mrp*0.2);
+    const esp = parseFloat((mrp-disc).toFixed(2));
+    const gst = parseFloat((esp*0.12).toFixed(2));
+    const paid = parseFloat((esp+gst).toFixed(2));
+    const tds = parseFloat((paid*0.01).toFixed(2));
+    const tcs = parseFloat((paid*0.005).toFixed(2));
+    rows.push({
+      Company_Id: co.id, Company_Name: co.name, brand: co.brand, Store_Code: co.code,
+      Transaction_Type: rndPick(['Sale','Return']),
+      bag_id: 'BAG'+rndInt(100000000,999999999),
+      shipment_id: '/'+rndInt(17000000000000000,17999999999999999),
+      DP: rndPick(DPS), awb: rndInt(10000000,99999999),
+      order_id: '/'+rndInt(17000000000000000,17999999999999999),
+      State: rndPick(STATES),
+      State_date: fmtDate(d), Accounting_Date: fmtDate(d),
+      Liability_date: fmtDate(addDays(d,7)),
+      expected_payout_date: fmtDate(addDays(d,14)),
+      ordering_channel: rndPick(CHANNELS), Payment: rndPick(PAYMENTS),
+      coupon_category: rndPick(['none','fynd','seller']),
+      Coupon_Code: rndPick(['','NEXUS10','SAVE20','']),
+      del_cust_name: 'Customer '+rndInt(100,999),
+      del_cust_email: 'cust'+rndInt(100,999)+'@email.com',
+      del_cust_mobile: '9'+rndInt(100000000,999999999),
+      MRP: mrp, store_discount: disc, ESP: esp,
+      value_of_good: esp, GST: gst,
+      seller_promotion_discount: disc, Coupon_Discount: 0,
+      unit_price: esp, Nexus_Discount: 0,
+      Amount_Paid: paid, TDS: tds, TCS: tcs,
+      Amount_Payable: parseFloat((paid-tds-tcs).toFixed(2))
+    });
+  }
+  return rows;
+}
+
+function generateSettlementData() {
+  const rows = [];
+  for (let i = 0; i < 70; i++) {
+    const co = rndPick(COMPANIES);
+    const d = addDays(BASE_DATE, rndInt(-30,0));
+    const payDate = addDays(d, rndInt(7,21));
+    const paid = rndFloat(299,4999);
+    const tds = parseFloat((paid*0.01).toFixed(2));
+    const tcs = parseFloat((paid*0.005).toFixed(2));
+    const payable = parseFloat((paid-tds-tcs).toFixed(2));
+    const settled = parseFloat((payable * rndPick([1,1,1,0])).toFixed(2));
+    rows.push({
+      Company_Id: co.id, Company_Name: co.name, brand: co.brand, Store_Code: co.code,
+      Transaction_Type: rndPick(['Sale','Return']),
+      Booking_Type: rndPick(['Seller_Sale','Commission_on_Sale']),
+      bag_id: 'BAG'+rndInt(100000000,999999999),
+      shipment_id: '/'+rndInt(17000000000000000,17999999999999999),
+      DP: rndPick(DPS), awb: rndInt(10000000,99999999),
+      order_id: '/'+rndInt(17000000000000000,17999999999999999),
+      State: rndPick(STATES),
+      State_date: fmtDate(d), Accounting_Date: fmtDate(d),
+      Liability_date: fmtDate(addDays(d,7)),
+      expected_payout_date: fmtDate(addDays(d,14)),
+      ordering_channel: rndPick(CHANNELS), Payment: rndPick(PAYMENTS),
+      coupon_category: 'none', Coupon_Code: '',
+      del_cust_name: 'Customer '+rndInt(100,999),
+      del_cust_email: 'cust'+rndInt(100,999)+'@email.com',
+      del_cust_mobile: '9'+rndInt(100000000,999999999),
+      MRP: paid*1.2, store_discount: paid*0.2, ESP: paid,
+      value_of_good: paid, GST: parseFloat((paid*0.12).toFixed(2)),
+      seller_promotion_discount: 0, Coupon_Discount: 0,
+      unit_price: paid, Nexus_Discount: 0,
+      Amount_Paid: paid, TDS: tds, TCS: tcs,
+      Amount_Payable: payable,
+      Paid_Amt: settled,
+      Payment_Date: settled>0 ? fmtDate(payDate) : '',
+      UTR: settled>0 ? 'UTR'+rndInt(100000000000,999999999999) : '',
+      payout_id: 'pay_'+Math.random().toString(36).substring(2,14),
+      Dispute: 'N', Payable_amt: payable,
+      inserted_date: fmtDate(d)
+    });
+  }
+  return rows;
+}
+
+function generateCommissionData() {
+  const rows = [];
+  const invNums = {};
+  for (let i = 0; i < 60; i++) {
+    const co = rndPick(COMPANIES);
+    const d = addDays(BASE_DATE, rndInt(-30,0));
+    const invMonth = d.getFullYear()+''+String(d.getMonth()+1).padStart(2,'0');
+    if (!invNums[co.id+'_'+invMonth]) invNums[co.id+'_'+invMonth] = 'FC-C-A0'+rndInt(1000,9999)+'-FY26';
+    const paid = rndFloat(299,4999);
+    const tds = parseFloat((paid*0.01).toFixed(2));
+    const tcs = parseFloat((paid*0.005).toFixed(2));
+    rows.push({
+      Company_Id: co.id, Company_Name: co.name, brand: co.brand, Store_Code: co.code,
+      Transaction_Type: rndPick(['FWD PG Charges','SLA Charges','Commission_on_Sale']),
+      bag_id: 'BAG'+rndInt(100000000,999999999),
+      shipment_id: '/'+rndInt(17000000000000000,17999999999999999),
+      DP: rndPick(DPS), awb: rndInt(10000000,99999999),
+      order_id: '/'+rndInt(17000000000000000,17999999999999999),
+      State: rndPick(['Delivered','Cancelled by Fynd']),
+      State_date: fmtDate(d), Accounting_Date: fmtDate(d),
+      Liability_date: fmtDate(addDays(d,7)),
+      expected_payout_date: fmtDate(addDays(d,14)),
+      ordering_channel: rndPick(CHANNELS), Payment: rndPick(PAYMENTS),
+      coupon_category: 'none', Coupon_Code: '',
+      del_cust_name: 'Customer '+rndInt(100,999),
+      del_cust_email: 'cust'+rndInt(100,999)+'@email.com',
+      del_cust_mobile: '9'+rndInt(100000000,999999999),
+      MRP: paid*1.2, store_discount: paid*0.2, ESP: paid,
+      value_of_good: paid, GST: parseFloat((paid*0.12).toFixed(2)),
+      seller_promotion_discount: 0, Coupon_Discount: 0,
+      unit_price: paid, Nexus_Discount: 0,
+      Amount_Paid: paid, TDS: tds, TCS: tcs,
+      Amount_Payable: parseFloat((paid-tds-tcs).toFixed(2)),
+      Invoice_Generation_Date: fmtDate(addDays(d,5)),
+      Invoice_No: invNums[co.id+'_'+invMonth]
+    });
+  }
+  return rows;
+}
+
+function generateLogisticsData() {
+  const rows = [];
+  const invNums = {};
+  for (let i = 0; i < 50; i++) {
+    const co = rndPick(COMPANIES);
+    const d = addDays(BASE_DATE, rndInt(-30,0));
+    const invMonth = d.toLocaleString('default',{month:'short'})+'-'+d.getFullYear();
+    const key = co.id+'_'+invMonth;
+    if (!invNums[key]) invNums[key] = 'FC-I-A0'+rndInt(2800,3700)+'-FY26';
+    const weight = rndFloat(0.3,5,1);
+    const dist = rndInt(1,50);
+    const base = rndFloat(30,250);
+    const cod = rndPick([0,0,0,25,35]);
+    const net = parseFloat((base+cod).toFixed(2));
+    const gst = parseFloat((net*0.18).toFixed(2));
+    rows.push({
+      Company_ID: co.id, Company_Name: co.name,
+      ordering_channel: rndPick(CHANNELS),
+      affiliate_name: 'NEXUS',
+      Plan: rndPick(PLANS),
+      dp_name: rndPick(DPS),
+      delivery_partner_id: Math.random().toString(16).substring(2,26),
+      Shipment_id: '/'+rndInt(17000000000000000,17999999999999999),
+      awb: '/GS'+rndInt(1000000000,9999999999),
+      final_zone: rndPick(ZONES),
+      package_type: rndPick(['Standard','Bulky']),
+      journey: rndPick(JOURNEYS),
+      cod_amount: cod>0 ? rndFloat(199,2999) : 0,
+      charged_weight: weight,
+      total_distance_km: dist,
+      dl_chgs_final: base,
+      cod_charges: cod,
+      qc_charges: 0,
+      net_charges: net,
+      gst: gst,
+      total: parseFloat((net+gst).toFixed(2)),
+      Invoice_Month: invMonth,
+      Invoice_No: invNums[key]
+    });
+  }
+  return rows;
+}
+
+
+const REPORTS = [
+  {
+    id: 'r01',
+    code: '01',
+    name: 'Transactional Report',
+    icon: '🧾',
+    color: 'var(--blue-dim)',
+    iconColor: 'var(--blue)',
+    description: 'Bag-level transaction data with payment, item & pricing details',
+    bqTable: 'nexus_analytics.transactional_report',
+    columns: [
+      'Transaction_Type','bag_status_id','date','bag_status_created_at','bag_created_date',
+      'Created_Date','order_platform','ordering_channel','ordering_source','new_ordering_channel',
+      'mode_of_payment','State_Date','expected_date_of_del','bag_id','parent_id','shipment_id',
+      'affiliate_shipment_id','affiliate_bag_id','order_id','affiliate_order_id','affiliate_name',
+      'po_number','customer_gstin','Itemcode','Item_ID','Articlecode','tag_number',
+      'seller_identifier','ean','sku_code','is_set_article','article_qnty','Item_Name',
+      'Size','Brand','brand_id','Gender','Payment','payment_mode','multi_tender_mode',
+      'transfer_price','ESP','Fees','delivery_charge','cod_charge','Cashback_Used',
+      'Fynd_Credits','Coupon_Discount','Promotion_Effective_Discount','payable_category',
+      'fynd_promotion_discount','seller_promotion_discount','Billed_Amount','Amount_Paid',
+      'employee_discount','loyalty_discount','Revenue','unit_price','total_charges',
+      'charges_name','State'
+    ],
+    bqQuery: `SELECT *\nFROM \`nexus_analytics.transactional_report\`\nWHERE DATE(bag_created_date) = @report_date\n  AND affiliate_name = 'NEXUS'\nORDER BY bag_created_date DESC\nLIMIT 10000`,
+    sampleData: generateTransactionalData()
+  },
+  {
+    id: 'r02',
+    code: '02',
+    name: 'Recon Report',
+    icon: '🔁',
+    color: 'var(--purple-dim)',
+    iconColor: 'var(--purple)',
+    description: 'Reconciliation of payables with GST, TDS, TCS breakdown per bag',
+    bqTable: 'nexus_analytics.recon_report',
+    columns: [
+      'Company_Id','Company_Name','brand','Store_Code','Transaction_Type','bag_id',
+      'shipment_id','DP','awb','order_id','State','State_date','Accounting_Date',
+      'Liability_date','expected_payout_date','ordering_channel','Payment','coupon_category',
+      'Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount',
+      'ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price',
+      'Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable'
+    ],
+    bqQuery: `SELECT *\nFROM \`nexus_analytics.recon_report\`\nWHERE DATE(Accounting_Date) BETWEEN @from_date AND @to_date\n  AND Store_Code IS NOT NULL\nORDER BY Accounting_Date DESC`,
+    sampleData: generateReconData()
+  },
+  {
+    id: 'r03',
+    code: '03',
+    name: 'Settlement Report',
+    icon: '💰',
+    color: 'var(--green-dim)',
+    iconColor: 'var(--green)',
+    description: 'Settlement payouts with UTR, payment dates and dispute tracking',
+    bqTable: 'nexus_analytics.settlement_report',
+    columns: [
+      'Company_Id','Company_Name','brand','Store_Code','Transaction_Type','Booking_Type',
+      'bag_id','shipment_id','DP','awb','order_id','State','State_date','Accounting_Date',
+      'Liability_date','expected_payout_date','ordering_channel','Payment','coupon_category',
+      'Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount',
+      'ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price',
+      'Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable','Paid_Amt',
+      'Payment_Date','UTR','payout_id','Dispute','Payable_amt','inserted_date'
+    ],
+    bqQuery: `SELECT *\nFROM \`nexus_analytics.settlement_report\`\nWHERE DATE(Payment_Date) BETWEEN @from_date AND @to_date\nORDER BY Payment_Date DESC`,
+    sampleData: generateSettlementData()
+  },
+  {
+    id: 'r04',
+    code: '04',
+    name: 'Commission Invoice Report',
+    icon: '📋',
+    color: 'var(--accent-dim)',
+    iconColor: 'var(--accent)',
+    description: 'Commission invoice lines with invoice number and generation date',
+    bqTable: 'nexus_analytics.commission_invoice_report',
+    columns: [
+      'Company_Id','Company_Name','brand','Store_Code','Transaction_Type','bag_id',
+      'shipment_id','DP','awb','order_id','State','State_date','Accounting_Date',
+      'Liability_date','expected_payout_date','ordering_channel','Payment','coupon_category',
+      'Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount',
+      'ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price',
+      'Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable',
+      'Invoice_Generation_Date','Invoice_No'
+    ],
+    bqQuery: `SELECT *\nFROM \`nexus_analytics.commission_invoice_report\`\nWHERE DATE(Invoice_Generation_Date) = @invoice_date\n  AND Company_Id IS NOT NULL\nORDER BY Invoice_Generation_Date DESC`,
+    sampleData: generateCommissionData()
+  },
+  {
+    id: 'r05',
+    code: '05',
+    name: 'Logistics Invoice Report',
+    icon: '🚚',
+    color: 'var(--teal-dim)',
+    iconColor: 'var(--teal)',
+    description: 'Shipment logistics charges with zone, weight, DP and invoice reference',
+    bqTable: 'nexus_analytics.logistics_invoice_report',
+    columns: [
+      'Company_ID','Company_Name','ordering_channel','affiliate_name','Plan',
+      'dp_name','delivery_partner_id','Shipment_id','awb','final_zone','package_type',
+      'journey','cod_amount','charged_weight','total_distance_km','dl_chgs_final',
+      'cod_charges','qc_charges','net_charges','gst','total','Invoice_Month','Invoice_No'
+    ],
+    bqQuery: `SELECT *\nFROM \`nexus_analytics.logistics_invoice_report\`\nWHERE Invoice_Month = @invoice_month\n  AND Company_ID IS NOT NULL\nORDER BY Invoice_No, Shipment_id`,
+    sampleData: generateLogisticsData()
+  }
+];
+
+// ─── REPORT STATE ───
+let activeReport = null;
+let rpFiltered = [];
+let rpPage = 1;
+const RP_PAGE_SIZE = 20;
+let rpColVis = {};
+let rpSortKey = null, rpSortDir = 1;
+
+// ─── INIT REPORT CARDS ───
+function initReportCards() {
+  const container = document.getElementById('report-cards');
+  container.innerHTML = REPORTS.map(r => `
+    <div onclick="openReport('${r.id}')"
+      style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all var(--transition)"
+      onmouseover="this.style.borderColor='var(--border-active)';this.style.background='var(--bg-card-hover)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--bg-card)'"
+      id="rcard-${r.id}">
+      <div style="width:38px;height:38px;border-radius:var(--radius-sm);background:${r.color};display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px">${r.icon}</div>
+      <div style="font-family:'Sora',sans-serif;font-size:12.5px;font-weight:600;margin-bottom:4px;line-height:1.3">${r.code}. ${r.name}</div>
+      <div style="font-size:11px;color:var(--text-muted);line-height:1.4">${r.description}</div>
+      <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:10.5px;font-family:'DM Mono',monospace;color:var(--text-muted)">${r.columns.length} cols</span>
+        <span style="font-size:10.5px;color:${r.iconColor}">${r.sampleData.length} rows →</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openReport(id) {
+  activeReport = REPORTS.find(r => r.id === id);
+  if (!activeReport) return;
+
+  // Highlight active card
+  REPORTS.forEach(r => {
+    const card = document.getElementById('rcard-'+r.id);
+    if (card) {
+      card.style.borderColor = r.id === id ? activeReport.iconColor : 'var(--border)';
+      card.style.background = r.id === id ? 'var(--bg-card-hover)' : 'var(--bg-card)';
+    }
+  });
+
+  document.getElementById('report-panel').style.display = 'block';
+  document.getElementById('rp-icon').style.background = activeReport.color;
+  document.getElementById('rp-icon').textContent = activeReport.icon;
+  document.getElementById('rp-title').textContent = activeReport.code + '. ' + activeReport.name;
+  document.getElementById('rp-meta').textContent = activeReport.columns.length + ' columns · ' + activeReport.sampleData.length + ' rows · Sample data (BigQuery not connected)';
+  document.getElementById('rp-data-source').innerHTML = '<span style="color:var(--accent);font-size:11px">⚡ Sample data</span>';
+  document.getElementById('rp-query-text').textContent = activeReport.bqQuery;
+
+  // Init column visibility
+  rpColVis = {};
+  activeReport.columns.forEach(c => { rpColVis[c] = true; });
+
+  // Build col menu
+  buildRpColMenu();
+
+  // Init vendor filter
+  const vendors = [...new Set(activeReport.sampleData.map(r => r.Company_Name || r.Company_Id || '').filter(Boolean))].sort();
+  const vf = document.getElementById('rp-vendor-filter');
+  vf.innerHTML = '<option value="">All Vendors</option>' + vendors.map(v => `<option value="${v}">${v}</option>`).join('');
+
+  // Init state filter
+  const stateKey = activeReport.columns.includes('State') ? 'State' : null;
+  const sf = document.getElementById('rp-state-filter');
+  if (stateKey) {
+    const states = [...new Set(activeReport.sampleData.map(r => r[stateKey]).filter(Boolean))].sort();
+    sf.innerHTML = '<option value="">All States</option>' + states.map(s => `<option value="${s}">${s}</option>`).join('');
+    sf.style.display = '';
+  } else {
+    sf.style.display = 'none';
+  }
+
+  document.getElementById('rp-search').value = '';
+  rpPage = 1;
+  rpSortKey = null;
+  rpFiltered = [...activeReport.sampleData];
+  renderReportTable();
+  document.getElementById('report-panel').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function buildRpColMenu() {
+  if (!activeReport) return;
+  const menu = document.getElementById('rp-col-menu');
+  menu.innerHTML = '<div class="col-toggle-title">Show / Hide Columns</div>' +
+    activeReport.columns.map((c,i) => `
+      <div class="col-item" onclick="toggleRpCol('${c}')">
+        <div class="col-check ${rpColVis[c]?'checked':''}" id="rpccheck-${c.replace(/[^a-zA-Z0-9]/g,'_')}"></div>
+        ${c}
+      </div>
+    `).join('');
+}
+
+function toggleRpColMenu() {
+  document.getElementById('rp-col-menu').classList.toggle('open');
+}
+
+function toggleRpCol(col) {
+  rpColVis[col] = !rpColVis[col];
+  const el = document.getElementById('rpccheck-'+col.replace(/[^a-zA-Z0-9]/g,'_'));
+  if (el) el.className = 'col-check' + (rpColVis[col] ? ' checked' : '');
+  renderReportTable();
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.col-toggle-wrap')) {
+    document.querySelectorAll('.col-toggle-menu').forEach(m => m.classList.remove('open'));
+  }
+});
+
+// ─── FILTER ───
+function filterReport() {
+  if (!activeReport) return;
+  const q = document.getElementById('rp-search').value.toLowerCase();
+  const vendor = document.getElementById('rp-vendor-filter').value;
+  const state = document.getElementById('rp-state-filter').value;
+
+  rpFiltered = activeReport.sampleData.filter(row => {
+    const matchQ = !q || Object.values(row).some(v => String(v).toLowerCase().includes(q));
+    const matchV = !vendor || row.Company_Name === vendor || String(row.Company_ID) === vendor;
+    const matchS = !state || row.State === state;
+    return matchQ && matchV && matchS;
+  });
+
+  if (rpSortKey) {
+    rpFiltered.sort((a,b) => {
+      let av = a[rpSortKey]??'', bv = b[rpSortKey]??'';
+      if (!isNaN(av) && !isNaN(bv)) return (Number(av)-Number(bv))*rpSortDir;
+      return String(av).localeCompare(String(bv))*rpSortDir;
+    });
+  }
+
+  rpPage = 1;
+  renderReportTable();
+}
+
+// ─── RENDER TABLE ───
+function renderReportTable() {
+  if (!activeReport) return;
+  const visCols = activeReport.columns.filter(c => rpColVis[c]);
+  const thead = document.getElementById('rp-thead');
+  const tbody = document.getElementById('rp-tbody');
+
+  thead.innerHTML = '<tr>' + visCols.map(c => {
+    const sc = rpSortKey===c ? (rpSortDir===1?' sort-asc':' sort-desc') : '';
+    return `<th class="${sc}" onclick="rpSort('${c}')" style="cursor:pointer">${c}</th>`;
+  }).join('') + '</tr>';
+
+  const start = (rpPage-1)*RP_PAGE_SIZE;
+  const page = rpFiltered.slice(start, start+RP_PAGE_SIZE);
+
+  const numericCols = new Set(['MRP','ESP','GST','TDS','TCS','Amount_Paid','Amount_Payable','Paid_Amt',
+    'value_of_good','store_discount','unit_price','Nexus_Discount','seller_promotion_discount',
+    'Coupon_Discount','Billed_Amount','Revenue','transfer_price','Fees','total_charges',
+    'dl_chgs_final','cod_charges','qc_charges','net_charges','gst','total','cod_amount',
+    'charged_weight','total_distance_km','Payable_amt','Promotion_Effective_Discount',
+    'multi_tender_amount','employee_discount','loyalty_discount','delivery_charge','cod_charge']);
+
+  tbody.innerHTML = page.length === 0
+    ? `<tr><td colspan="${visCols.length}" style="text-align:center;padding:40px;color:var(--text-muted)">No data matches filters</td></tr>`
+    : page.map(row => {
+        const cells = visCols.map(c => {
+          const val = row[c];
+          if (val === null || val === undefined || val === '') return `<td class="dim">—</td>`;
+          if (numericCols.has(c) && !isNaN(val) && val !== '') {
+            const n = parseFloat(val);
+            const fmt = n >= 1000 ? '₹'+n.toLocaleString('en-IN',{maximumFractionDigits:2}) : n.toFixed(2);
+            return `<td style="text-align:right;font-family:'DM Mono',monospace;font-size:11.5px;color:var(--text-primary)">${fmt}</td>`;
+          }
+          if (c === 'State') {
+            const s = val;
+            const cls = s==='Delivered'?'badge-green':s.includes('Cancelled')||s==='RTO'?'badge-red':s==='Placed'?'badge-blue':'badge-amber';
+            return `<td><span class="badge ${cls}" style="font-size:10px">${s}</span></td>`;
+          }
+          if (c === 'Transaction_Type' || c === 'Booking_Type') {
+            return `<td><span class="chip" style="font-size:10.5px">${val}</span></td>`;
+          }
+          if (typeof val === 'string' && (c.toLowerCase().includes('email') || c === 'del_cust_email')) {
+            return `<td style="color:var(--blue);font-size:11.5px">${val}</td>`;
+          }
+          const sval = String(val);
+          const display = sval.length > 28 ? sval.substring(0,28)+'…' : sval;
+          const isMono = c.includes('_id')||c.includes('bag_id')||c.includes('shipment')||c.includes('order_id')||c==='awb'||c.includes('UTR')||c.includes('Invoice_No')||c.includes('payout');
+          return `<td class="${isMono?'mono':''}" title="${sval}">${display}</td>`;
+        }).join('');
+        return `<tr>${cells}</tr>`;
+      }).join('');
+
+  document.getElementById('rp-count').textContent = rpFiltered.length + ' rows';
+  document.getElementById('rp-meta').textContent = activeReport.columns.length + ' columns · ' + rpFiltered.length + ' of ' + activeReport.sampleData.length + ' rows · Sample data (BigQuery not connected)';
+  renderRpPagination();
+}
+
+function rpSort(col) {
+  if (rpSortKey === col) rpSortDir *= -1;
+  else { rpSortKey = col; rpSortDir = 1; }
+  filterReport();
+}
+
+function renderRpPagination() {
+  const total = rpFiltered.length;
+  const pages = Math.max(1, Math.ceil(total/RP_PAGE_SIZE));
+  const start = (rpPage-1)*RP_PAGE_SIZE+1;
+  const end = Math.min(rpPage*RP_PAGE_SIZE, total);
+  document.getElementById('rp-page-info').textContent = total===0 ? 'No results' : `${start}–${end} of ${total}`;
+  const btns = document.getElementById('rp-page-btns');
+  let html = `<button class="page-btn" onclick="rpGoPage(${rpPage-1})" ${rpPage===1?'disabled':''}>‹</button>`;
+  for (let i=1;i<=pages;i++) {
+    if (pages>6&&i>2&&i<pages-1&&Math.abs(i-rpPage)>1) {
+      if (i===3||i===pages-2) html+=`<span style="padding:4px 3px;color:var(--text-muted)">…</span>`;
+      continue;
+    }
+    html+=`<button class="page-btn ${i===rpPage?'active':''}" onclick="rpGoPage(${i})">${i}</button>`;
+  }
+  html+=`<button class="page-btn" onclick="rpGoPage(${rpPage+1})" ${rpPage===pages?'disabled':''}>›</button>`;
+  btns.innerHTML = html;
+}
+
+function rpGoPage(p) {
+  const pages = Math.ceil(rpFiltered.length/RP_PAGE_SIZE);
+  if (p<1||p>pages) return;
+  rpPage = p;
+  renderReportTable();
+}
+
+// ─── EXPORT ───
+function exportReportCSV() {
+  if (!activeReport) return;
+  const visCols = activeReport.columns.filter(c => rpColVis[c]);
+  const rows = [visCols.join(','), ...rpFiltered.map(row =>
+    visCols.map(c => { const v = row[c]??''; return `"${String(v).replace(/"/g,'""')}"`;}).join(',')
+  )].join('\n');
+  const blob = new Blob([rows],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url;
+  a.download = activeReport.code+'_'+activeReport.name.replace(/\s+/g,'_')+'.csv';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function exportReportXLSX() {
+  // For XLSX we generate a CSV with .xlsx hint — in production this would use SheetJS
+  if (!activeReport) return;
+  exportReportCSV();
+  // Show a toast
+  const toast = document.createElement('div');
+  toast.textContent = '✓ Report exported as CSV (connect BigQuery for live XLSX)';
+  toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-elevated);border:1px solid var(--border-active);color:var(--text-primary);padding:10px 20px;border-radius:var(--radius);font-size:13px;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.4)';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+buildColMenu();
+sortData();
+renderTable();
+initReportCards();
+
+// ═══════════════════════════════════════
+// BIGQUERY MODULE
+// ═══════════════════════════════════════
+
+// Per-report BQ config state (pre-filled with real column names from xlsb files)
+const BQ_REPORT_CONFIGS = [
+  {
+    id: 'r01',
+    code: '01',
+    name: 'Transactional Report',
+    icon: '🧾',
+    iconColor: 'var(--blue)',
+    bqTable: 'nexus_analytics.transactional_report',
+    description: 'Bag-level transaction data — item, payment, pricing, state',
+    columns: ['Transaction_Type','bag_status_id','date','bag_status_created_at','bag_created_date','Created_Date','order_platform','ordering_channel','ordering_source','new_ordering_channel','mode_of_payment','State_Date','expected_date_of_del','bag_id','parent_id','shipment_id','affiliate_shipment_id','affiliate_bag_id','order_id','affiliate_order_id','affiliate_name','po_number','customer_gstin','Itemcode','Item_ID','Articlecode','tag_number','seller_identifier','ean','sku_code','is_set_article','article_qnty','Item_Name','Size','Brand','brand_id','Gender','Payment','payment_mode','multi_tender_mode','transfer_price','ESP','Fees','delivery_charge','cod_charge','Cashback_Used','Fynd_Credits','Coupon_Discount','Promotion_Effective_Discount','payable_category','fynd_promotion_discount','seller_promotion_discount','Billed_Amount','Amount_Paid','employee_discount','loyalty_discount','Revenue','unit_price','total_charges','charges_name','State'],
+    defaultQuery: `SELECT\n  Transaction_Type, bag_id, shipment_id, order_id,\n  affiliate_name, Brand, Item_Name, Size,\n  ESP, Amount_Paid, Revenue, State,\n  bag_created_date, State_Date\nFROM \`{project}.{dataset}.transactional_report\`\nWHERE DATE(bag_created_date) = @report_date\n  AND affiliate_name = 'NEXUS'\nORDER BY bag_created_date DESC\nLIMIT 10000`,
+    savedQuery: null,
+    status: 'not_tested',
+    lastTested: null,
+    previewRows: null
+  },
+  {
+    id: 'r02',
+    code: '02',
+    name: 'Recon Report',
+    icon: '🔁',
+    iconColor: 'var(--purple)',
+    bqTable: 'nexus_analytics.recon_report',
+    description: 'Reconciliation — GST, TDS, TCS, Amount Payable per bag',
+    columns: ['Company_Id','Company_Name','brand','Store_Code','Transaction_Type','bag_id','shipment_id','DP','awb','order_id','State','State_date','Accounting_Date','Liability_date','expected_payout_date','ordering_channel','Payment','coupon_category','Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount','ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price','Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable'],
+    defaultQuery: `SELECT\n  Company_Id, Company_Name, brand, Store_Code,\n  Transaction_Type, bag_id, shipment_id, DP, awb, order_id,\n  State, State_date, Accounting_Date, Liability_date, expected_payout_date,\n  ordering_channel, Payment, MRP, store_discount, ESP,\n  value_of_good, GST, seller_promotion_discount, Coupon_Discount,\n  unit_price, Nexus_Discount, Amount_Paid, TDS, TCS, Amount_Payable\nFROM \`{project}.{dataset}.recon_report\`\nWHERE DATE(Accounting_Date) BETWEEN @from_date AND @to_date\n  AND Store_Code IS NOT NULL\nORDER BY Accounting_Date DESC`,
+    savedQuery: null,
+    status: 'not_tested',
+    lastTested: null,
+    previewRows: null
+  },
+  {
+    id: 'r03',
+    code: '03',
+    name: 'Settlement Report',
+    icon: '💰',
+    iconColor: 'var(--green)',
+    bqTable: 'nexus_analytics.settlement_report',
+    description: 'Settlement payouts — UTR, Payment Date, Dispute tracking',
+    columns: ['Company_Id','Company_Name','brand','Store_Code','Transaction_Type','Booking_Type','bag_id','shipment_id','DP','awb','order_id','State','State_date','Accounting_Date','Liability_date','expected_payout_date','ordering_channel','Payment','coupon_category','Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount','ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price','Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable','Paid_Amt','Payment_Date','UTR','payout_id','Dispute','Payable_amt','inserted_date'],
+    defaultQuery: `SELECT\n  Company_Id, Company_Name, brand, Store_Code,\n  Transaction_Type, Booking_Type, bag_id, shipment_id, awb, order_id,\n  State, State_date, Accounting_Date, Liability_date, expected_payout_date,\n  ordering_channel, Payment, MRP, ESP, value_of_good, GST,\n  Amount_Paid, TDS, TCS, Amount_Payable,\n  Paid_Amt, Payment_Date, UTR, payout_id, Dispute, Payable_amt,\n  inserted_date\nFROM \`{project}.{dataset}.settlement_report\`\nWHERE DATE(Payment_Date) BETWEEN @from_date AND @to_date\nORDER BY Payment_Date DESC`,
+    savedQuery: null,
+    status: 'not_tested',
+    lastTested: null,
+    previewRows: null
+  },
+  {
+    id: 'r04',
+    code: '04',
+    name: 'Commission Invoice Report',
+    icon: '📋',
+    iconColor: 'var(--accent)',
+    bqTable: 'nexus_analytics.commission_invoice_report',
+    description: 'Commission invoices — Invoice No, Generation Date per bag',
+    columns: ['Company_Id','Company_Name','brand','Store_Code','Transaction_Type','bag_id','shipment_id','DP','awb','order_id','State','State_date','Accounting_Date','Liability_date','expected_payout_date','ordering_channel','Payment','coupon_category','Coupon_Code','del_cust_name','del_cust_email','del_cust_mobile','MRP','store_discount','ESP','value_of_good','GST','seller_promotion_discount','Coupon_Discount','unit_price','Nexus_Discount','Amount_Paid','TDS','TCS','Amount_Payable','Invoice_Generation_Date','Invoice_No'],
+    defaultQuery: `SELECT\n  Company_Id, Company_Name, brand, Store_Code,\n  Transaction_Type, bag_id, shipment_id, DP, awb, order_id,\n  State, State_date, Accounting_Date, Liability_date, expected_payout_date,\n  ordering_channel, Payment, MRP, ESP, value_of_good, GST,\n  Amount_Paid, TDS, TCS, Amount_Payable,\n  Invoice_Generation_Date, Invoice_No\nFROM \`{project}.{dataset}.commission_invoice_report\`\nWHERE DATE(Invoice_Generation_Date) = @invoice_date\n  AND Company_Id IS NOT NULL\nORDER BY Invoice_Generation_Date DESC, Company_Id`,
+    savedQuery: null,
+    status: 'not_tested',
+    lastTested: null,
+    previewRows: null
+  },
+  {
+    id: 'r05',
+    code: '05',
+    name: 'Logistics Invoice Report',
+    icon: '🚚',
+    iconColor: 'var(--teal)',
+    bqTable: 'nexus_analytics.logistics_invoice_report',
+    description: 'Logistics charges — zone, weight, DP, invoice reference',
+    columns: ['Company_ID','Company_Name','ordering_channel','affiliate_name','Plan','dp_name','delivery_partner_id','Shipment_id','awb','final_zone','package_type','journey','cod_amount','charged_weight','total_distance_km','dl_chgs_final','cod_charges','qc_charges','net_charges','gst','total','Invoice_Month','Invoice_No'],
+    defaultQuery: `SELECT\n  Company_ID, Company_Name, ordering_channel, affiliate_name, Plan,\n  dp_name, Shipment_id, awb, final_zone, package_type, journey,\n  cod_amount, charged_weight, total_distance_km,\n  dl_chgs_final, cod_charges, qc_charges, net_charges, gst, total,\n  Invoice_Month, Invoice_No\nFROM \`{project}.{dataset}.logistics_invoice_report\`\nWHERE Invoice_Month = @invoice_month\n  AND Company_ID IS NOT NULL\nORDER BY Invoice_No, Shipment_id`,
+    savedQuery: null,
+    status: 'not_tested',
+    lastTested: null,
+    previewRows: null
+  }
+];
+
+function initBQAccordions() {
+  const container = document.getElementById('bq-report-accordions');
+  if (!container) return;
+  container.innerHTML = BQ_REPORT_CONFIGS.map((cfg, idx) => {
+    const query = cfg.savedQuery || cfg.defaultQuery;
+    const statusHtml = cfg.status === 'ok'
+      ? '<span class="q-status ok"><span class="dot"></span> Query OK</span>'
+      : cfg.status === 'err'
+      ? '<span class="q-status err"><span class="dot"></span> Error</span>'
+      : '<span class="q-status warn"><span class="dot"></span> Not tested</span>';
+
+    return `
+    <div class="bq-accordion" id="bq-acc-${cfg.id}">
+      <div class="bq-accordion-head" onclick="toggleBQAcc('${cfg.id}')">
+        <div style="width:34px;height:34px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${cfg.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:13.5px;font-weight:600">${cfg.code}. ${cfg.name}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px">${cfg.description}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span id="bq-status-${cfg.id}">${statusHtml}</span>
+          <span style="font-size:10.5px;color:var(--text-muted);font-family:'DM Mono',monospace" id="bq-tested-${cfg.id}">${cfg.lastTested || ''}</span>
+          <svg class="bq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+
+      <div class="bq-accordion-body">
+        <div style="padding-top:16px">
+
+          <!-- Table / View name + columns count -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">BigQuery Table / View</label>
+              <input class="form-input" id="bq-table-${cfg.id}" value="${cfg.bqTable}" style="font-family:'DM Mono',monospace;font-size:12px" placeholder="project.dataset.table_name">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Expected Columns</label>
+              <div style="background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;font-size:12px;color:var(--text-secondary);font-family:'DM Mono',monospace">${cfg.columns.length} columns defined</div>
+            </div>
+          </div>
+
+          <!-- Column list chips -->
+          <div style="margin-bottom:14px">
+            <div class="form-label">Columns in this report</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;max-height:72px;overflow:hidden;position:relative" id="cols-wrap-${cfg.id}">
+              ${cfg.columns.map(c => `<span class="chip" style="font-family:'DM Mono',monospace;font-size:10.5px">${c}</span>`).join('')}
+            </div>
+            <div style="font-size:11px;color:var(--accent);cursor:pointer;margin-top:5px" onclick="toggleCols('${cfg.id}')"><span id="cols-toggle-${cfg.id}">Show all →</span></div>
+          </div>
+
+          <!-- SQL Query editor -->
+          <div class="form-group" style="margin-bottom:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+              <label class="form-label" style="margin-bottom:0">SQL Query</label>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-ghost btn-sm" onclick="resetQuery('${cfg.id}')" style="font-size:11px;padding:3px 9px">Reset to Default</button>
+                <button class="btn btn-ghost btn-sm" onclick="formatQuery('${cfg.id}')" style="font-size:11px;padding:3px 9px">Format SQL</button>
+              </div>
+            </div>
+            <textarea class="form-textarea" id="bq-query-${cfg.id}" style="font-family:'DM Mono',monospace;font-size:12px;min-height:160px;tab-size:2" spellcheck="false">${query}</textarea>
+          </div>
+
+          <!-- Query parameters section -->
+          <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px">
+            <div class="form-label" style="margin-bottom:10px">Query Parameters</div>
+            <div id="bq-params-${cfg.id}" style="display:flex;flex-direction:column;gap:8px">
+              ${getParamsForReport(cfg.id)}
+            </div>
+            <button class="btn btn-ghost btn-sm" style="margin-top:10px;font-size:11px;padding:3px 9px" onclick="addParam('${cfg.id}')">+ Add parameter</button>
+          </div>
+
+          <!-- Scheduling options -->
+          <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px">
+            <div class="form-label" style="margin-bottom:10px">Scheduling</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Run Frequency</label>
+                <select class="form-select" id="bq-freq-${cfg.id}" style="font-size:12px">
+                  <option value="daily" selected>Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="manual">Manual only</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Run Time (IST)</label>
+                <input class="form-input" id="bq-time-${cfg.id}" type="time" value="05:30" style="font-family:'DM Mono',monospace;font-size:12px">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Date Offset (days back)</label>
+                <input class="form-input" id="bq-offset-${cfg.id}" type="number" value="${cfg.id==='r05'?0:1}" min="0" max="30" style="font-family:'DM Mono',monospace;font-size:12px">
+              </div>
+            </div>
+          </div>
+
+          <!-- Action row -->
+          <div style="display:flex;gap:10px;align-items:center">
+            <button class="btn btn-ghost btn-sm" onclick="testBQQuery('${cfg.id}')">
+              <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Run Test Query
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="saveSingleQuery('${cfg.id}')">
+              <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Save Query
+            </button>
+            <span id="bq-save-msg-${cfg.id}" style="font-size:11.5px;color:var(--green);display:none">✓ Saved</span>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+              <span style="font-size:12px;color:var(--text-muted)">Active</span>
+              <div class="bq-toggle on" id="bq-active-${cfg.id}" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+
+          <!-- Preview result (shown after test) -->
+          <div id="bq-preview-${cfg.id}" style="display:none;margin-top:14px">
+            <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Query Preview (first 5 rows — sample data)</div>
+            <div class="preview-table-wrap" id="bq-preview-table-${cfg.id}"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function getParamsForReport(id) {
+  const paramSets = {
+    r01: [{name:'report_date', type:'DATE', example:'2025-01-31', desc:'Bag created date to filter'}],
+    r02: [{name:'from_date', type:'DATE', example:'2025-01-01', desc:'Accounting date range start'},{name:'to_date', type:'DATE', example:'2025-01-31', desc:'Accounting date range end'}],
+    r03: [{name:'from_date', type:'DATE', example:'2025-01-01', desc:'Payment date range start'},{name:'to_date', type:'DATE', example:'2025-01-31', desc:'Payment date range end'}],
+    r04: [{name:'invoice_date', type:'DATE', example:'2025-01-31', desc:'Invoice generation date'}],
+    r05: [{name:'invoice_month', type:'STRING', example:'Jan-2025', desc:'Invoice month (e.g. Jan-2025)'}],
+  };
+  return (paramSets[id]||[]).map(p => `
+    <div style="display:grid;grid-template-columns:140px 80px 140px 1fr;gap:8px;align-items:center">
+      <input class="form-input" value="${p.name}" style="font-family:'DM Mono',monospace;font-size:11.5px" placeholder="param name">
+      <select class="form-select" style="font-size:11.5px">
+        <option ${p.type==='DATE'?'selected':''}>DATE</option>
+        <option ${p.type==='STRING'?'selected':''}>STRING</option>
+        <option ${p.type==='INT64'?'selected':''}>INT64</option>
+      </select>
+      <input class="form-input" value="${p.example}" style="font-family:'DM Mono',monospace;font-size:11.5px" placeholder="example value">
+      <span style="font-size:11.5px;color:var(--text-muted)">${p.desc}</span>
+    </div>
+  `).join('');
+}
+
+function addParam(id) {
+  const container = document.getElementById('bq-params-'+id);
+  const div = document.createElement('div');
+  div.style.cssText = 'display:grid;grid-template-columns:140px 80px 140px 1fr;gap:8px;align-items:center';
+  div.innerHTML = `
+    <input class="form-input" placeholder="param_name" style="font-family:'DM Mono',monospace;font-size:11.5px">
+    <select class="form-select" style="font-size:11.5px"><option>DATE</option><option>STRING</option><option>INT64</option><option>FLOAT64</option></select>
+    <input class="form-input" placeholder="example value" style="font-family:'DM Mono',monospace;font-size:11.5px">
+    <span style="font-size:11.5px;color:var(--text-muted)">description</span>
+  `;
+  container.appendChild(div);
+}
+
+function toggleBQAcc(id) {
+  const acc = document.getElementById('bq-acc-'+id);
+  const isOpen = acc.classList.contains('active');
+  // close all
+  document.querySelectorAll('.bq-accordion').forEach(a => a.classList.remove('active'));
+  if (!isOpen) acc.classList.add('active');
+}
+
+function toggleCols(id) {
+  const wrap = document.getElementById('cols-wrap-'+id);
+  const btn = document.getElementById('cols-toggle-'+id);
+  if (wrap.style.maxHeight === 'none') {
+    wrap.style.maxHeight = '72px';
+    btn.textContent = 'Show all →';
+  } else {
+    wrap.style.maxHeight = 'none';
+    btn.textContent = 'Show less ↑';
+  }
+}
+
+function resetQuery(id) {
+  const cfg = BQ_REPORT_CONFIGS.find(c => c.id === id);
+  if (!cfg) return;
+  document.getElementById('bq-query-'+id).value = cfg.defaultQuery;
+}
+
+function formatQuery(id) {
+  const ta = document.getElementById('bq-query-'+id);
+  let q = ta.value;
+  // Basic formatting: uppercase keywords
+  const keywords = ['SELECT','FROM','WHERE','AND','OR','ORDER BY','GROUP BY','HAVING','LIMIT','JOIN','LEFT JOIN','INNER JOIN','ON','AS','BETWEEN','IN','NOT IN','IS NULL','IS NOT NULL','DISTINCT','COUNT','SUM','AVG','MAX','MIN','DATE','TIMESTAMP'];
+  keywords.forEach(k => {
+    q = q.replace(new RegExp('\\b'+k+'\\b','gi'), k);
+  });
+  ta.value = q;
+}
+
+function saveSingleQuery(id) {
+  const cfg = BQ_REPORT_CONFIGS.find(c => c.id === id);
+  if (!cfg) return;
+  cfg.savedQuery = document.getElementById('bq-query-'+id).value;
+  cfg.bqTable = document.getElementById('bq-table-'+id).value;
+  // Show saved message
+  const msg = document.getElementById('bq-save-msg-'+id);
+  msg.style.display = 'inline';
+  setTimeout(() => { msg.style.display = 'none'; }, 2500);
+}
+
+function testBQQuery(id) {
+  const cfg = BQ_REPORT_CONFIGS.find(c => c.id === id);
+  if (!cfg) return;
+
+  const statusEl = document.getElementById('bq-status-'+id);
+  const testedEl = document.getElementById('bq-tested-'+id);
+  const previewWrap = document.getElementById('bq-preview-'+id);
+  const previewTable = document.getElementById('bq-preview-table-'+id);
+
+  statusEl.innerHTML = '<span class="q-status warn"><span class="dot"></span> Running…</span>';
+
+  // Simulate BQ test (in production: actual API call)
+  setTimeout(() => {
+    const projectId = document.getElementById('bq-project').value || 'nexus-vendor-prod';
+    const dataset = document.getElementById('bq-dataset').value || 'nexus_analytics';
+
+    // Mark as OK (simulated)
+    cfg.status = 'ok';
+    cfg.lastTested = 'Tested '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    statusEl.innerHTML = '<span class="q-status ok"><span class="dot"></span> Query OK</span>';
+    testedEl.textContent = cfg.lastTested;
+
+    // Show sample preview from report sampleData
+    const report = REPORTS.find(r => r.id === id);
+    if (report && report.sampleData && report.sampleData.length > 0) {
+      const previewCols = cfg.columns.slice(0, 8); // first 8 cols
+      const previewRows = report.sampleData.slice(0, 5);
+      previewWrap.style.display = 'block';
+      previewTable.innerHTML = `<table class="preview-table">
+        <thead><tr>${previewCols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+        <tbody>${previewRows.map(row=>`<tr>${previewCols.map(c=>{
+          const v = row[c];
+          const s = v===null||v===undefined?'—':String(v);
+          return `<td>${s.length>20?s.substring(0,20)+'…':s}</td>`;
+        }).join('')}</tr>`).join('')}</tbody>
+      </table>`;
+    }
+
+    // Update badge in connection area
+    document.getElementById('bq-conn-badge').className = 'badge badge-green';
+    document.getElementById('bq-conn-badge').innerHTML = '<span class="dot"></span> Connected';
+  }, 1200);
+}
+
+function testBQConnection() {
+  const badge = document.getElementById('bq-conn-badge');
+  const msg = document.getElementById('bq-conn-msg');
+  badge.innerHTML = '<span class="dot"></span> Testing…';
+  badge.className = 'badge badge-amber';
+  msg.style.display = 'none';
+  setTimeout(() => {
+    const project = document.getElementById('bq-project').value;
+    if (project) {
+      badge.className = 'badge badge-green';
+      badge.innerHTML = '<span class="dot"></span> Connected';
+      msg.style.display = 'block';
+      msg.innerHTML = '<span style="color:var(--green)">✓ Connection successful — project <strong>'+project+'</strong> reachable. Service account authenticated.</span>';
+    } else {
+      badge.className = 'badge badge-red';
+      badge.innerHTML = '<span class="dot"></span> Failed';
+      msg.style.display = 'block';
+      msg.innerHTML = '<span style="color:var(--red)">✗ Project ID is required.</span>';
+    }
+  }, 1000);
+}
+
+function handleSAUpload(input) {
+  const label = document.getElementById('bq-sa-label');
+  if (input.files && input.files[0]) {
+    label.textContent = '✓ ' + input.files[0].name + ' (' + (input.files[0].size/1024).toFixed(1) + ' KB)';
+    label.style.color = 'var(--green)';
+  }
+}
+
+function saveBQConfig() {
+  // Save all queries
+  BQ_REPORT_CONFIGS.forEach(cfg => saveSingleQuery(cfg.id));
+  const toast = document.createElement('div');
+  toast.textContent = '✓ All query configurations saved successfully';
+  toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-elevated);border:1px solid var(--green);color:var(--green);padding:10px 22px;border-radius:var(--radius);font-size:13px;z-index:999;font-weight:500';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2800);
+}
+
+function resetBQConfig() {
+  BQ_REPORT_CONFIGS.forEach(cfg => {
+    cfg.savedQuery = null;
+    const ta = document.getElementById('bq-query-'+cfg.id);
+    if (ta) ta.value = cfg.defaultQuery;
+  });
+}
+
+
+
+</script>
+</body>
+</html>
